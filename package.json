@@ -1,0 +1,48 @@
+{
+  "name": "ourea",
+  "version": "0.0.1",
+  "description": "nextjs with material-ui & typescript demo",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qtisan/ourea.git"
+  },
+  "keywords": [
+    "nextjs",
+    "material-ui",
+    "typescript"
+  ],
+  "author": "Lennon Qian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qtisan/ourea/issues"
+  },
+  "homepage": "https://github.com/qtisan/ourea#readme",
+  "dependencies": {
+    "@material-ui/core": "^4.1.1",
+    "@material-ui/icons": "^4.2.0",
+    "@types/jest": "^24.0.14",
+    "@types/lodash": "^4.14.134",
+    "@types/next": "^8.0.5",
+    "@types/node": "^12.0.8",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.4",
+    "@zeit/next-typescript": "^1.1.1",
+    "lodash": "^4.17.11",
+    "next": "^8.1.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.3.3",
+    "awesome-typescript-loader": "^5.2.1",
+    "source-map-loader": "^0.2.4",
+    "typescript": "^3.5.1"
+  }
+}
