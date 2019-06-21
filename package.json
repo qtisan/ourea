@@ -36,6 +36,7 @@
     "@zeit/next-typescript": "^1.1.1",
     "lodash": "^4.17.11",
     "next": "^8.1.0",
+    "phusis": "0.0.8",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },

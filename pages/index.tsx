@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NextContext } from 'next';
-import { camelToHyphenate } from '../lib/utilities';
+import { camelToHyphenate } from 'phusis';
 
 interface IndexProps {
   userAgent: string

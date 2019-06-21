@@ -3,7 +3,7 @@
     "allowJs": true, /* Allow JavaScript files to be type checked. */
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": true, /* Parse in strict mode. */
-    "baseUrl": "./packages",
+    "baseUrl": "./node_modules",
     "esModuleInterop": true, /* matches compilation setting */
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
