@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withStyles, Theme, WithStyles } from '@material-ui/core/styles';
 import { ThemeProvider, createStyles } from '@material-ui/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Hidden from '@material-ui/core/Hidden';
-import Navigator from '../components/Navigator';
+import Navigator, { NavigatorProps } from '../components/Navigator';
 import Header from '../components/Header';
 import theme from "../themes/main";
 
@@ -33,14 +33,15 @@ const styles = (theme: Theme) => createStyles({
   },
 });
 
-interface Props extends WithStyles<typeof styles> {
+export interface ManageLayoutProps extends WithStyles<typeof styles> {
   classes: any,
-  children: JSX.Element[] | JSX.Element
-}
+  children?: JSX.Element[] | JSX.Element,
+  navigatorProps: NavigatorProps
+};
 
 export default withStyles(styles)(
 
-  class extends React.Component<Props, { mobileOpen: boolean }> {
+  class extends React.Component<ManageLayoutProps, { mobileOpen: boolean }> {
     state = {
       mobileOpen: false,
     };
@@ -50,7 +51,7 @@ export default withStyles(styles)(
     };
 
     render() {
-      const { classes, children } = this.props;
+      const { classes, children, navigatorProps } = this.props;
 
       return (
         <ThemeProvider theme={theme}>
@@ -58,15 +59,18 @@ export default withStyles(styles)(
             <CssBaseline />
             <nav className={classes.drawer}>
               <Hidden smUp implementation="js">
-                <Navigator
-                  PaperProps={{ style: { width: drawerWidth } }}
+                <Navigator {
+                    ...{
+                      ...navigatorProps,
+                      style: { width: drawerWidth }
+                    }
+                  }
                   variant="temporary"
                   open={this.state.mobileOpen}
-                  onClose={this.handleDrawerToggle}
-                />
+                  onClose={this.handleDrawerToggle} />
               </Hidden>
               <Hidden xsDown implementation="css">
-                <Navigator PaperProps={{ style: { width: drawerWidth } }} />
+                <Navigator {...{ style: { width: drawerWidth }, ...navigatorProps}}/>
               </Hidden>
             </nav>
             <div className={classes.appContent}>

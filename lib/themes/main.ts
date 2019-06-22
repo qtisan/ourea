@@ -1,4 +1,11 @@
 import { createMuiTheme } from "@material-ui/core";
+import Color from 'color';
+
+const primaryColor = Color('#ff558bff'),
+  secondaryColor = Color('#9f6affff'),
+  whiteColor = Color('#fdfdfdff'),
+  blackColor = Color('#2f2b2cff');
+const rgb = (color: Color): string => color.rgb().toString();
 
 let theme = createMuiTheme({
   typography: {
@@ -10,10 +17,29 @@ let theme = createMuiTheme({
   },
   palette: {
     primary: {
-      light: '#63ccff',
-      main: '#009be5',
-      dark: '#006db3',
+      light: rgb(primaryColor.lighten(.6)),
+      main: rgb(primaryColor),
+      dark: rgb(primaryColor.darken(.6)),
     },
+    secondary: {
+      light: rgb(secondaryColor.lighten(.6)),
+      main: rgb(secondaryColor),
+      dark: rgb(secondaryColor.darken(.6)),
+    },
+    common: {
+      white: rgb(whiteColor),
+      black: rgb(blackColor),
+    },
+    grey: {
+      50: rgb(blackColor.lighten(4.4)),
+      100: rgb(blackColor.lighten(4.1)),
+      200: rgb(blackColor.lighten(3.8)),
+      300: rgb(blackColor.lighten(3.5)),
+      400: rgb(blackColor.lighten(3)),
+      500: rgb(blackColor.lighten(2)),
+      600: rgb(blackColor.lighten(1.5)),
+      700: rgb(blackColor.lighten(1.2)),
+    }
   },
   shape: {
     borderRadius: 8,
@@ -25,8 +51,11 @@ theme = {
   overrides: {
     MuiDrawer: {
       paper: {
-        backgroundColor: '#18202c',
+        backgroundColor: rgb(whiteColor),
       },
+      paperAnchorDockedLeft: {
+        borderRight: 0
+      }
     },
     MuiButton: {
       label: {
