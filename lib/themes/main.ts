@@ -3,7 +3,7 @@ import Color from 'color';
 
 const primaryColor = Color('#ff558bff'),
   secondaryColor = Color('#9f6affff'),
-  whiteColor = Color('#fdfdfdff'),
+  whiteColor = Color('#fdfefeff'),
   blackColor = Color('#2f2b2cff');
 const rgb = (color: Color): string => color.rgb().toString();
 
@@ -17,12 +17,12 @@ let theme = createMuiTheme({
   },
   palette: {
     primary: {
-      light: rgb(primaryColor.lighten(.6)),
+      light: rgb(primaryColor.lighten(.4)),
       main: rgb(primaryColor),
       dark: rgb(primaryColor.darken(.6)),
     },
     secondary: {
-      light: rgb(secondaryColor.lighten(.6)),
+      light: rgb(secondaryColor.lighten(.4)),
       main: rgb(secondaryColor),
       dark: rgb(secondaryColor.darken(.6)),
     },
@@ -31,11 +31,11 @@ let theme = createMuiTheme({
       black: rgb(blackColor),
     },
     grey: {
-      50: rgb(blackColor.lighten(4.4)),
-      100: rgb(blackColor.lighten(4.1)),
-      200: rgb(blackColor.lighten(3.8)),
-      300: rgb(blackColor.lighten(3.5)),
-      400: rgb(blackColor.lighten(3)),
+      50: rgb(blackColor.lighten(4.6)),
+      100: rgb(blackColor.lighten(4.45)),
+      200: rgb(blackColor.lighten(4.3)),
+      300: rgb(blackColor.lighten(4.15)),
+      400: rgb(blackColor.lighten(3.5)),
       500: rgb(blackColor.lighten(2)),
       600: rgb(blackColor.lighten(1.5)),
       700: rgb(blackColor.lighten(1.2)),
@@ -51,7 +51,8 @@ theme = {
   overrides: {
     MuiDrawer: {
       paper: {
-        backgroundColor: rgb(whiteColor),
+        backgroundColor: theme.palette.common.white,
+        boxShadow: theme.shadows[24]
       },
       paperAnchorDockedLeft: {
         borderRight: 0
@@ -68,15 +69,20 @@ theme = {
         },
       },
     },
+    MuiAppBar: {
+      colorPrimary: {
+        backgroundColor: theme.palette.grey[50],
+        color: theme.palette.grey[700]
+      }
+    },
     MuiTabs: {
       root: {
-        marginLeft: theme.spacing(1),
+        marginLeft: theme.spacing(2),
       },
       indicator: {
         height: 3,
         borderTopLeftRadius: 3,
-        borderTopRightRadius: 3,
-        backgroundColor: theme.palette.common.white,
+        borderTopRightRadius: 3
       },
     },
     MuiTab: {
@@ -84,6 +90,7 @@ theme = {
         textTransform: 'none',
         margin: '0 16px',
         minWidth: 0,
+        lineHeight: '32px',
         padding: 0,
         [theme.breakpoints.up('md')]: {
           padding: 0,
@@ -103,7 +110,7 @@ theme = {
     },
     MuiDivider: {
       root: {
-        backgroundColor: '#404854',
+        backgroundColor: theme.palette.grey[400],
       },
     },
     MuiListItemText: {

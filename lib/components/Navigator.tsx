@@ -14,6 +14,9 @@ import { Link } from '@material-ui/core';
 
 
 const styles: Styles<Theme, {}> = (theme: Theme) => ({
+  root: {
+    paddingBottom: theme.spacing(4),
+  },
   categoryHeader: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(1),
@@ -30,11 +33,17 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
   item: {
     paddingTop: 4,
     paddingBottom: 4,
+    paddingLeft: theme.spacing(5),
     color: theme.palette.grey[500],
     '&:hover,&:focus': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.secondary.light
+      backgroundColor: theme.palette.grey[200],
+      color: theme.palette.grey[700]
     },
+  },
+  clearUnderline: {
+    '&:hover,&:focus': {
+      textDecoration: 'none !important'
+    }
   },
   itemCategory: {
     boxShadow: theme.shadows[0],
@@ -51,7 +60,7 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
     paddingBottom: theme.spacing(3),
   },
   itemActiveItem: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.main,
     color: theme.palette.secondary.light
   },
   itemPrimary: {
@@ -63,7 +72,7 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
   },
   logoImage: {
     width: '100%',
-    marginLeft: -theme.spacing(2)
+    marginLeft: -theme.spacing(1)
   },
 });
 
@@ -79,11 +88,12 @@ export interface CategoryItem {
 export type NavigatorProps = {
   classes?: any,
   logo: string,
-  categories: CategoryItem[]
+  categories: CategoryItem[],
+  overview: { text: string, link: string }
 } & DrawerProps;
 
 function Navigator(props: NavigatorProps) {
-  const { classes, logo, categories, ...drawerProps } = props;
+  const { classes, logo, categories, overview, ...drawerProps } = props;
   const { style } = drawerProps;
   return (
     <Drawer variant="permanent" {...drawerProps}>
@@ -91,18 +101,20 @@ function Navigator(props: NavigatorProps) {
         <ListItem className={clsx(classes.firebase, classes.itemCategory)}>
           <img src={logo} className={classes.logoImage} />
         </ListItem>
-        <ListItem className={clsx(classes.item, classes.itemCategory)} button>
-          <ListItemIcon className={classes.itemIcon}>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText
-            classes={{
-              primary: classes.itemPrimary,
-            }}
-          >
-            Project Overview
-          </ListItemText>
-        </ListItem>
+        <Link href={overview.link} className={classes.clearUnderline}>
+          <ListItem className={clsx(classes.item, classes.itemCategory)} button>
+              <ListItemIcon className={classes.itemIcon}>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText
+                classes={{
+                  primary: classes.itemPrimary,
+                }}
+              >
+                {overview.text}
+              </ListItemText>
+          </ListItem>
+        </Link>
         {categories.map(({ id, name, children }) => (
           <React.Fragment key={id}>
             <ListItem className={classes.categoryHeader}>
@@ -115,7 +127,7 @@ function Navigator(props: NavigatorProps) {
               </ListItemText>
             </ListItem>
             {children && children.map(({ id: childId, name: childName, link, icon, active }) => (
-              <Link href={link} key={childId}>
+              <Link href={link} key={childId} className={classes.clearUnderline}>
                 <ListItem
                   key={childId}
                   button

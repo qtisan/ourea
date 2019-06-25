@@ -29,7 +29,7 @@ const styles = (theme: Theme) => createStyles({
   mainContent: {
     flex: 1,
     padding: '48px 36px 0',
-    background: '#eaeff1',
+    backgroundColor: theme.palette.grey[50],
   },
 });
 

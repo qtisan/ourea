@@ -16,12 +16,16 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { withStyles, Theme } from '@material-ui/core/styles';
 import { Styles } from '@material-ui/core/styles/withStyles';
+import clsx from 'clsx';
 
 const lightColor = 'rgba(255, 255, 255, 0.7)';
 
 const styles: Styles<Theme, {}> = (theme: Theme) => ({
   secondaryBar: {
     zIndex: 0,
+  },
+  tabBar: {
+    backgroundColor: theme.palette.grey[100]
   },
   menuButton: {
     marginLeft: -theme.spacing(1),
@@ -117,7 +121,7 @@ function Header(props: { classes: any; onDrawerToggle: any; }) {
       </AppBar>
       <AppBar
         component="div"
-        className={classes.secondaryBar}
+        className={clsx(classes.secondaryBar, classes.tabBar)}
         color="primary"
         position="static"
         elevation={0}
