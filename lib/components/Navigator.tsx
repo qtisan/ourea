@@ -8,10 +8,11 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import HomeIcon from '@material-ui/icons/Home';
-import PeopleIcon from '@material-ui/icons/People';
 import { Styles } from '@material-ui/core/styles/withStyles';
-import { Link } from '@material-ui/core';
-
+import { Link, SvgIcon } from '@material-ui/core';
+// FUTURE: temporary solution instead of dynamic import material icons, it will slow down page load.
+// see: https://github.com/zeit/next.js/issues/7676
+import Icons from '../themes/icons';
 
 const styles: Styles<Theme, {}> = (theme: Theme) => ({
   root: {
@@ -49,6 +50,7 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
     boxShadow: theme.shadows[0],
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
     '&:not([class*=firebase])': {
       borderTop: 'solid 1px #eee',
       marginBottom: -theme.spacing(2)
@@ -61,7 +63,8 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
   },
   itemActiveItem: {
     backgroundColor: theme.palette.primary.main,
-    color: theme.palette.secondary.light
+    color: theme.palette.secondary.light,
+    borderRadius: '0 30px 30px 0'
   },
   itemPrimary: {
     fontSize: 'inherit',
@@ -69,9 +72,11 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
   itemIcon: {
     minWidth: 'auto',
     marginRight: theme.spacing(2),
+    position: 'relative',
+    top: -1
   },
   logoImage: {
-    width: '100%',
+    width: '70%',
     marginLeft: -theme.spacing(1)
   },
 });
@@ -79,10 +84,11 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
 export interface CategoryItem {
   id: string,
   name: string,
-  icon?: JSX.Element,
+  icon?: string,
   link?: string,
   children?: CategoryItem[],
-  active?: boolean
+  active?: boolean,
+  IconComponent?: typeof SvgIcon
 }
 
 export type NavigatorProps = {
@@ -95,6 +101,13 @@ export type NavigatorProps = {
 function Navigator(props: NavigatorProps) {
   const { classes, logo, categories, overview, ...drawerProps } = props;
   const { style } = drawerProps;
+  for (let cate of categories) {
+    if (cate.children && cate.children.length) {
+      for (let menu of cate.children) {
+        menu.IconComponent = Icons[menu.icon || 'People'];
+      }
+    }
+  }
   return (
     <Drawer variant="permanent" {...drawerProps}>
       <List disablePadding className={classes.root} style={{ width: style && style.width || 'auto'}}>
@@ -126,24 +139,27 @@ function Navigator(props: NavigatorProps) {
                 {name}
               </ListItemText>
             </ListItem>
-            {children && children.map(({ id: childId, name: childName, link, icon, active }) => (
-              <Link href={link} key={childId} className={classes.clearUnderline}>
-                <ListItem
-                  key={childId}
-                  button
-                  className={clsx(classes.item, active && classes.itemActiveItem)}
-                >
-                  <ListItemIcon className={classes.itemIcon}>{icon || <PeopleIcon />}</ListItemIcon>
-                  <ListItemText
-                    classes={{
-                      primary: classes.itemPrimary,
-                    }}
+            {children && children.map(({ id: childId, name: childName, link, IconComponent, active }) => {
+              let Ico = IconComponent || HomeIcon;
+              return (
+                <Link href={link} key={childId} className={classes.clearUnderline}>
+                  <ListItem
+                    key={childId}
+                    button
+                    className={clsx(classes.item, active && classes.itemActiveItem)}
                   >
-                    {childName}
-                  </ListItemText>
-                </ListItem>
-              </Link>
-            ))}
+                    <ListItemIcon className={classes.itemIcon}><Ico /></ListItemIcon>
+                    <ListItemText
+                      classes={{
+                        primary: classes.itemPrimary,
+                      }}
+                    >
+                      {childName}
+                    </ListItemText>
+                  </ListItem>
+                </Link>
+              );
+            })}
           </React.Fragment>
         ))}
       </List>
