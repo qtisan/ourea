@@ -46,6 +46,18 @@ let theme = createMuiTheme({
   },
 });
 
+(function reduceShadowDepth(scale: number): void {
+  const { shadows } = theme;
+  const depthReg = /,\s*([0-1]\.[0-9]{1,2})\s*\)/g;
+  for (let i = 0; i < shadows.length; i++) {
+    let match;
+    while (match = depthReg.exec(shadows[i])) {
+      const scaled = (parseFloat(match[1] || '1') * scale).toFixed(2);
+      shadows[i] = shadows[i].replace(match[0], `,${scaled})`);
+    }
+  }
+})(0.15);
+
 theme = {
   ...theme,
   overrides: {
@@ -146,5 +158,7 @@ theme = {
     },
   },
 };
+
+
 
 export default theme;

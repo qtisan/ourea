@@ -15,7 +15,8 @@ export default class Index extends React.Component<IndexProps> {
     return <div>
       <h4>Hello, {this.props.userAgent}</h4>
       <p>{camelToHyphenate('helloWorld')}</p>
-      <p>{new Date().getStamp().toString()}</p>
+      <p>{Date.getCurrentStamp().toString()}</p>
+      <p>{Date.moment().format('YYYY-MM-DD').toString()}</p>
     </div>;
   }
 };
