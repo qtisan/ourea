@@ -3,6 +3,11 @@
     "server",
     "static"
   ],
-  "exec": "ts-node --project tsconfig.server.json server/index.ts",
-  "ext": "js ts"
+  "exec": "node --inspect -r ts-node/register server/index.ts",
+  "ext": "js ts",
+  "inspect": true,
+  "env": {
+    "NODE_ENV": "development",
+    "TS_NODE_PROJECT": "tsconfig.server.json"
+  }
 }

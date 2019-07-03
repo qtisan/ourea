@@ -35,6 +35,14 @@ module.exports = withTypescript(
   {
     webpack(config, options) {
       // Further custom configuration here
+      // config.node = {
+      //   setImmediate: false,
+      //   dgram: 'empty',
+      //   fs: 'empty',
+      //   net: 'empty',
+      //   tls: 'empty',
+      //   child_process: 'empty',
+      // };
       return config;
     }
   }

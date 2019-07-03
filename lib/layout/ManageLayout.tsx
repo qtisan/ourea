@@ -6,6 +6,7 @@ import Hidden from '@material-ui/core/Hidden';
 import Navigator, { NavigatorProps } from '../components/Navigator';
 import Header from '../components/Header';
 import theme from "../themes/main";
+import SnackbarPlugin from './SnackbarPlugin';
 
 
 const drawerWidth = 256;
@@ -56,6 +57,7 @@ export default withStyles(styles)(
       return (
         <ThemeProvider theme={theme}>
           <div className={classes.root}>
+            <SnackbarPlugin />
             <CssBaseline />
             <nav className={classes.drawer}>
               <Hidden smUp implementation="js">

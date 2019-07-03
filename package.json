@@ -1,6 +1,6 @@
 {
   "name": "ourea",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "nextjs with material-ui & typescript demo",
   "main": "index.js",
   "scripts": {
@@ -38,14 +38,21 @@
     "@zeit/next-typescript": "^1.1.1",
     "color": "^3.1.2",
     "express": "^4.17.1",
+    "isomorphic-unfetch": "^3.0.0",
     "lodash": "^4.17.11",
+    "mobx": "^5.10.1",
+    "mobx-react": "^6.1.1",
+    "mobx-state-tree": "^3.14.0",
     "next": "^8.1.0",
-    "phusis": "^0.1.0",
+    "notistack": "^0.8.8",
+    "phusis": "^0.1.5",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "styled-components": "^4.3.2"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
     "@babel/preset-typescript": "^7.3.3",
     "awesome-typescript-loader": "^5.2.1",
     "babel-plugin-styled-components": "^1.10.1",

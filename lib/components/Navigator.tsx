@@ -63,7 +63,7 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
   },
   itemActiveItem: {
     backgroundColor: theme.palette.primary.main,
-    color: theme.palette.secondary.light,
+    color: theme.palette.common.white,
     borderRadius: '0 30px 30px 0'
   },
   itemPrimary: {

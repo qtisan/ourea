@@ -3,6 +3,7 @@ import Color from 'color';
 
 const primaryColor = Color('#ff558bff'),
   secondaryColor = Color('#9f6affff'),
+  errorColor = Color('#cf5a73ff'),
   whiteColor = Color('#fdfefeff'),
   blackColor = Color('#2f2b2cff');
 const rgb = (color: Color): string => color.rgb().toString();
@@ -22,9 +23,14 @@ let theme = createMuiTheme({
       dark: rgb(primaryColor.darken(.6)),
     },
     secondary: {
-      light: rgb(secondaryColor.lighten(.4)),
+      light: rgb(secondaryColor.lighten(.1)),
       main: rgb(secondaryColor),
       dark: rgb(secondaryColor.darken(.6)),
+    },
+    error: {
+      light: rgb(errorColor.lighten(.1)),
+      main: rgb(errorColor),
+      dark: rgb(errorColor.darken(.3)),
     },
     common: {
       white: rgb(whiteColor),
