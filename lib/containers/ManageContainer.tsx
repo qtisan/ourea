@@ -4,6 +4,8 @@ import { withStyles, Theme, createStyles, WithStyles } from '@material-ui/core/s
 import ManageLayout from "../layout/ManageLayout";
 import { CategoryItem } from "../components/Navigator";
 
+import config from "../config";
+
 const categories: CategoryItem[] = [
   {
     id: 'Develop',
@@ -27,7 +29,7 @@ const categories: CategoryItem[] = [
     ],
   },
 ];
-let logo = '/static/images/ourea_brand-transparent.svg';
+const logo = config.logo.transparent;
 
 const styles = (theme: Theme) => createStyles({
   root: {

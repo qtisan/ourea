@@ -15,6 +15,7 @@ let theme = createMuiTheme({
       fontSize: 26,
       letterSpacing: 0.5,
     },
+    fontSize: 14
   },
   palette: {
     primary: {
@@ -45,6 +46,10 @@ let theme = createMuiTheme({
       500: rgb(blackColor.lighten(2)),
       600: rgb(blackColor.lighten(1.5)),
       700: rgb(blackColor.lighten(1.2)),
+    },
+    background: {
+      default: '#fafafa',
+      paper: rgb(whiteColor)
     }
   },
   shape: {

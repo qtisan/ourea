@@ -1,21 +1,16 @@
 import React from 'react';
 import { withStyles, Theme, WithStyles } from '@material-ui/core/styles';
-import { ThemeProvider, createStyles } from '@material-ui/styles';
+import { createStyles } from '@material-ui/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Hidden from '@material-ui/core/Hidden';
 import Navigator, { NavigatorProps } from '../components/Navigator';
 import Header from '../components/Header';
-import theme from "../themes/main";
-import SnackbarPlugin from './SnackbarPlugin';
+import RootLayout from './RootLayout';
 
 
 const drawerWidth = 256;
 
 const styles = (theme: Theme) => createStyles({
-  root: {
-    display: 'flex',
-    minHeight: '100vh',
-  },
   drawer: {
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
@@ -55,34 +50,31 @@ export default withStyles(styles)(
       const { classes, children, navigatorProps } = this.props;
 
       return (
-        <ThemeProvider theme={theme}>
-          <div className={classes.root}>
-            <SnackbarPlugin />
-            <CssBaseline />
-            <nav className={classes.drawer}>
-              <Hidden smUp implementation="js">
-                <Navigator {
-                    ...{
-                      ...navigatorProps,
-                      style: { width: drawerWidth }
-                    }
-                  }
-                  variant="temporary"
-                  open={this.state.mobileOpen}
-                  onClose={this.handleDrawerToggle} />
-              </Hidden>
-              <Hidden xsDown implementation="css">
-                <Navigator {...{ style: { width: drawerWidth }, ...navigatorProps}}/>
-              </Hidden>
-            </nav>
-            <div className={classes.appContent}>
-              <Header onDrawerToggle={this.handleDrawerToggle} />
-              <main className={classes.mainContent}>
-                {children}
-              </main>
-            </div>
+        <RootLayout>
+          <CssBaseline />
+          <nav className={classes.drawer}>
+            <Hidden smUp implementation="js">
+              <Navigator {
+                ...{
+                  ...navigatorProps,
+                  style: { width: drawerWidth }
+                }
+              }
+                variant="temporary"
+                open={this.state.mobileOpen}
+                onClose={this.handleDrawerToggle} />
+            </Hidden>
+            <Hidden xsDown implementation="css">
+              <Navigator {...{ style: { width: drawerWidth }, ...navigatorProps }} />
+            </Hidden>
+          </nav>
+          <div className={classes.appContent}>
+            <Header onDrawerToggle={this.handleDrawerToggle} />
+            <main className={classes.mainContent}>
+              {children}
+            </main>
           </div>
-        </ThemeProvider>
+        </RootLayout>
       );
     }
   }
