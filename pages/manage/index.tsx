@@ -47,7 +47,7 @@ class ManageIndex extends Component<ManageIndexProps> {
     this.props.store.refreshTokens();
   }
   async makReq() {
-    await this.props.store.request('/do', {
+    await this.props.store.do({
       action: 'test1'
     });
   }

@@ -51,7 +51,6 @@ export default withStyles(styles)(
 
       return (
         <RootLayout>
-          <CssBaseline />
           <nav className={classes.drawer}>
             <Hidden smUp implementation="js">
               <Navigator {

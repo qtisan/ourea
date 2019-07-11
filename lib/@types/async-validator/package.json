@@ -1,0 +1,21 @@
+{
+  "name": "@types/async-validator",
+  "version": "0.1.0",
+  "description": "types async-validator",
+  "main": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+  },
+  "keywords": [
+    "types",
+    "async-validator",
+    "validator"
+  ],
+  "author": "lennon qian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+  },
+  "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped#readme"
+}

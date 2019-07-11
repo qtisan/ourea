@@ -1,29 +1,17 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import {
-  handleQuery, ExecuteQueryPayload, refreshTokens,
-  extractQuery, ServerTokens, Tokens, ExtractedQueryPack, caught
+  handleQuery, refreshTokens,
+  extractQuery, ExtractedQueryPack, caught
 } from "phusis";
-
-import { OnlineUser, QueryResult } from './types';
-import { getAnonymousInfo } from "../lib/stores/authorize";
+import { getUserInfoByTokens, verifyToken, executeQuery, getUidByAccessToken, verifyAndSaveRefreshToken } from "./user";
+import config from "../lib/config";
 
 class ServerRoutes { 
   static router: Router = Router();
 
   @post '/hello'(req: Request, res: Response): void {
     req && res.json({ message: 'hello, world.', data: req.body });
-  }
-
-  @post async '/passport/anonymous'(req: Request, res: Response): Promise<void> {
-    const anonymous = await getAnonymousInfo();
-    req &&
-      res.json({
-        result: {
-          status: 'success',
-          data: anonymous
-        }
-      });
   }
 
   @use 'check credential'(req: Request, res: Response, next: NextFunction): void {
@@ -37,7 +25,7 @@ class ServerRoutes {
     }
   }
 
-  @post async '/do'(req: Request, res: Response): Promise<void> {
+  @post async [`/${config.doRequestPath}`](req: Request, res: Response): Promise<void> {
     const { credential, q } = res.locals;
     try {
       const data = await handleQuery(credential, q, verifyToken, executeQuery);
@@ -53,7 +41,28 @@ class ServerRoutes {
     }
   }
 
-  @post async '/passport/refresh-token'(req: Request, res: Response): Promise<void> {
+  @post async [`/${config.currentUserPath}`](req: Request, res: Response): Promise<void> {
+    const { credential, q } = res.locals;
+    const eqp: ExtractedQueryPack = extractQuery(credential, q); 
+    try {
+      const userinfo = await getUserInfoByTokens(eqp && eqp.query.payload);
+      req && res.json({
+        result: {
+          status: 'success',
+          data: userinfo
+        }
+      });
+    } catch (e) {
+      res.json({
+        result: {
+          status: 'error',
+          exception: caught('not exist')
+        }
+      });
+    }
+  }
+
+  @post async [`/${config.refreshTokenPath}`](req: Request, res: Response): Promise<void> {
     req;
     const { credential, q } = res.locals;
     const eqp: ExtractedQueryPack = extractQuery(credential, q); 
@@ -68,8 +77,6 @@ class ServerRoutes {
     res.json(response);
   }
 
-
-
 }
 
 function post(target: ServerRoutes, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -79,38 +86,4 @@ function use(target: ServerRoutes, propertyKey: string, descriptor: PropertyDesc
   target && propertyKey && ServerRoutes.router.use(descriptor.value);
 }
 
-async function verifyToken(accessToken: string): Promise<OnlineUser> {
-  accessToken;
-  return {
-    user_id: '113',
-    username: 'lennon'
-  };
-}
-async function executeQuery({ user, query }: ExecuteQueryPayload<OnlineUser>): Promise<QueryResult> {
-  if (user && query && query.action === 'test') {
-    return {
-      status: 'success',
-      data: {
-        total: 2,
-        posts: [{title: 'Ourea is good!'}, {title: 'I am working on the skeleton'}]
-      }
-    };
-  } else {
-    return {
-      status: 'failed',
-      exception: caught('unknown error!')
-    };
-  }
-}
-async function getUidByAccessToken(accessToken: string): Promise<string> {
-  accessToken;
-  return 'eo_q7gynv67fjhqkrbsqvrdqvhdv_edlhoyqv6t';
-}
-async function verifyAndSaveRefreshToken(refreshToken: string, refreshedTokens: ServerTokens): Promise<Tokens> {
-  refreshToken;
-  refreshedTokens;
-  return refreshedTokens.tokens;
-}
-
 export default ServerRoutes.router;
-export { getAnonymousInfo };

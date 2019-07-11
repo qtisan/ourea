@@ -9,15 +9,17 @@ export default class OureaDocument extends Document<DefaultDocumentIProps> {
     ctx.renderPage = () =>
       originalRenderPage({
         enhanceApp: App => props => sheets.collect(<App {...props} />),
+        enhanceComponent: Component => props => <Component {...props} />
       });
     const initialProps: DefaultDocumentIProps = await Document.getInitialProps(ctx);
     return {
       ...initialProps,
       styles: (
-        <React.Fragment>
+        <>
           {initialProps.styles}
+          {/* The styles import duplicated. */}
           {sheets.getStyleElement()}
-        </React.Fragment>
+        </>
       ),
     };
   }

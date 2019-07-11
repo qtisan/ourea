@@ -3,6 +3,7 @@ import { withStyles, Theme, WithStyles } from '@material-ui/core/styles';
 import { ThemeProvider, createStyles } from '@material-ui/styles';
 import theme from "../themes/main";
 import SnackbarPlugin from './SnackbarPlugin';
+import { CssBaseline } from '@material-ui/core';
 
 const styles = (theme: Theme) => createStyles({
   root: {
@@ -26,6 +27,7 @@ export default withStyles(styles)(
 
       return (
         <ThemeProvider theme={theme}>
+          <CssBaseline />
           <div className={classes.root}>
             <SnackbarPlugin />
             {children}

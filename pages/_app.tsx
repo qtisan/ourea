@@ -2,6 +2,8 @@ import App, { Container, NextAppContext, DefaultAppIProps, AppProps } from 'next
 import { initializeStore, IStore, constructStore } from '../lib/stores';
 import { getSnapshot } from 'mobx-state-tree';
 import { Provider } from 'mobx-react';
+import { Exception } from 'phusis';
+import { ErrorInfo } from 'react';
 
 interface IOwnProps {
   isServer: boolean
@@ -30,7 +32,13 @@ class OureaApp extends App<OureaAppProps> {
 
   constructor(props: OureaAppProps) {
     super(props);
+    // debugger;
     this.store = constructStore(typeof window === 'undefined', props.initialState as any) as IStore;
+  }
+
+  componentDidCatch(error: Exception, info: ErrorInfo) {
+    this.store.snackbar.error(error.message);
+    console.error(info);
   }
 
   render() {

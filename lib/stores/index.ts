@@ -1,16 +1,12 @@
 
-import { join } from 'path';
 import fetch from "isomorphic-unfetch";
-import { applySnapshot, Instance, SnapshotIn, SnapshotOut, types, getSnapshot } from 'mobx-state-tree';
+import { applySnapshot, Instance, SnapshotIn, SnapshotOut, types } from 'mobx-state-tree';
 import { ClientQuery, makeEncryptedQuery, Tokens, Exception } from 'phusis';
 import { DataResponse } from '../../server/types';
 
-import { getAnonymousInfo, TokenStore, initializeTokens } from './authorize';
+import { TokenStore, CurrentUserStore, anoninfo } from './authorize';
 import { Snackbar, initializeSnackbar } from "./snackbar";
-
-const URL_PREFIX = '/stuff';
-const REFRESH_TOKEN_URL = join(URL_PREFIX, '/passport/refresh-token');
-
+import config from '../config';
 const Qs = types.model({
   name: types.identifier,
   status: types.string,
@@ -19,7 +15,7 @@ const Qs = types.model({
 
 const Store = types
   .model({
-    user_id: types.string,
+    currentUser: CurrentUserStore,
     tokens: TokenStore,
     results: types.array(Qs),
     snackbar: Snackbar
@@ -43,7 +39,7 @@ const Store = types
     actions: {
       async refreshTokens(): Promise<Tokens> {
         const currentTokens = self.tokens.getTokens();
-        const response = await makeRequest(REFRESH_TOKEN_URL, currentTokens.access_token, {
+        const response = await makeRequest(config.getRefreshTokenUrl(), currentTokens.access_token, {
           action: 'refresh_token',
           payload: currentTokens
         });
@@ -60,7 +56,7 @@ const Store = types
         if (current > expire_at) {
           access_token = (await self.refreshTokens()).access_token;
         }
-        const response = await makeRequest(join(URL_PREFIX, path), access_token, query);
+        const response = await makeRequest(config.wrapRequestUrl(path), access_token, query);
         self.putResult({ name: response.query ? response.query.action : 'default', ...response.result });
         if (response.result.status !== 'success') {
           let ex = response.result.exception as Exception;
@@ -73,6 +69,13 @@ const Store = types
         return response;
       },
     }
+  }))
+  .extend(self => ({
+    actions: {
+      async do(query: ClientQuery): Promise<DataResponse> {
+        return await self.request(config.doRequestPath, query);
+      }
+    }
   }));
 
 export let store: IStore = null as any;
@@ -82,15 +85,25 @@ export type IStoreSnapshotIn = SnapshotIn<typeof Store>;
 export type IStoreSnapshotOut = SnapshotOut<typeof Store>;
 
 export const initializeStore = async (isServer: boolean) => {
-  let inits;
-  if (isServer) {
-    inits = await getAnonymousInfo();
+  if (isServer || !store) {
     store = Store.create({
-      user_id: inits.user_id,
-      tokens: initializeTokens(inits.tokens),
+      currentUser: CurrentUserStore.create(anoninfo.user),
+      tokens: TokenStore.create(anoninfo.tokens),
       snackbar: initializeSnackbar()
     });
-  } 
+  }
+  if (!isServer) {
+    const currentTokens = store.tokens.getTokens();
+    if (store.tokens.isAnonymous() && !store.currentUser.isAnonymous()) {
+      applySnapshot(store.currentUser, anoninfo.user);
+    }
+    if (!store.tokens.isAnonymous() && store.currentUser.isAnonymous()) {
+      const response = await makeRequest(config.getCurrentUserUrl(), currentTokens.access_token, {
+        action: 'current-user', payload: currentTokens
+      });
+      applySnapshot(store.currentUser, response.result.data.user);
+    }
+  }
   return store;
 };
 export const constructStore = (isServer: boolean, initialState: any) => {
@@ -104,11 +117,8 @@ export const constructStore = (isServer: boolean, initialState: any) => {
   }
   return store;
 };
-export const takeSnapshot = () => {
-  return getSnapshot(store);
-};
 
-async function makeRequest(url: string, access_token: string, query: ClientQuery): Promise<DataResponse> {
+export async function makeRequest(url: string, access_token: string, query: ClientQuery): Promise<DataResponse> {
   const { credential, q } = makeEncryptedQuery(access_token, query);
   const response = await fetch(url, {
     method: 'POST',

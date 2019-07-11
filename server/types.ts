@@ -4,6 +4,7 @@ import { Exception, QueryResponse } from "phusis";
 export interface OnlineUser {
   user_id: string;
   username: string;
+  avatar: string;
 }
 
 export interface QueryResult<D = any> {

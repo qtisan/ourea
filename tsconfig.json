@@ -1,64 +1,42 @@
 {
   "compilerOptions": {
-    "allowJs": true, /* Allow JavaScript files to be type checked. */
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "alwaysStrict": true, /* Parse in strict mode. */
-    "baseUrl": "./node_modules",
-    "esModuleInterop": true, /* matches compilation setting */
+    "alwaysStrict": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true, /* to match webpack loader */
-    "jsx": "preserve", /* Preserves jsx outside of Next.js. */
-    "lib": [
-      "dom",
-      "es2017"
-    ], /* List of library files to be included in the type checking. */
-    "module": "esnext", /* Specifies the type of module to type check. */
-    "moduleResolution": "node", /* Determine how modules get resolved. */
-    "noEmit": true, /* Do not emit outputs. Makes sure tsc only does type checking. */
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "lib": ["dom", "es2017"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": true,
     "noErrorTruncation": true,
-    /* Strict Type-Checking Options, optional, but recommended. */
-    "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
-    "noUnusedLocals": true, /* Report errors on unused locals. */
-    "noUnusedParameters": true, /* Report errors on unused parameters. */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "outDir": "build",
     "paths": {
-      "@material-ui/core": [
-        "./material-ui/src"
-      ],
-      "@material-ui/core/*": [
-        "./material-ui/src/*"
-      ],
-      "@material-ui/lab": [
-        "./material-ui-lab/src"
-      ],
-      "@material-ui/lab/*": [
-        "./material-ui-lab/src/*"
-      ],
-      "@material-ui/styles": [
-        "./material-ui-styles/src"
-      ],
-      "@material-ui/styles/*": [
-        "./material-ui-styles/src/*"
-      ],
-      "@material-ui/system": [
-        "./material-ui-system/src"
-      ],
-      "@material-ui/types": [
-        "./material-ui-types"
-      ]
+      "*": ["*", "lib/@types/*"]
     },
+    "typeRoots": ["./node_modules/@types", "./lib/@types"],
     "sourceMap": true,
-    "strict": true /* Enable all strict type-checking options. */,
-    "target": "esnext" /* The type checking input. */,
+    "strict": true,
+    "target": "esnext",
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin",
+        "alwaysShowRuleFailuresAsWarnings": false,
+        "ignoreDefinitionFiles": true,
+        "configFile": "./tslint.json",
+        "suppressWhileTypeErrorsPresent": false
+      }
+    ]
   },
   "compileOnSave": true,
-  "exclude": [
-    "node_modules",
-    ".vscode",
-    ".next",
-    "build",
-    "dist"
-  ]
+  "exclude": ["node_modules", ".vscode", ".next", "build", "dist"]
 }

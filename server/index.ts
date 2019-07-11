@@ -3,6 +3,7 @@ import { parse } from 'url';
 import next from 'next';
 import express from 'express';
 import router from "./router";
+import config from "../lib/config";
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -13,7 +14,7 @@ app.prepare().then(() => {
   const server = express();
   server.use(express.json());
   server.use(express.urlencoded({ extended: true }));
-  server.use('/stuff', router);
+  server.use(`/${config.requestPrefix}`, router);
   server.get('*', (req, res) => {
     const parsedUrl = parse(req.originalUrl, true);
     handle(req, res, parsedUrl);

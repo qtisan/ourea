@@ -54,7 +54,7 @@ export default withStyles(styles)(
       return (
         <ManageLayout navigatorProps={{
           logo, categories, overview: { text: '项目概览', link: '/manage' }
-        }}>
+        }} >
           {children}
         </ManageLayout>
       );
