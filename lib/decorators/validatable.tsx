@@ -26,6 +26,9 @@ export interface IRegisterOptions {
   validateDefaultValue?: boolean;
   handleValue?: (value: any) => any | null;
 }
+export interface IAnyObject {
+  [key: string]: any;
+}
 
 export class Validator {
   @observable values: ValidateFields = [];
@@ -87,7 +90,7 @@ export class Validator {
   setError = (field: string, message: string) => {
     this.setField(field, null, null, message);
   };
-  getFieldValues = (fields?: string[], original: boolean = false) => {
+  getFieldValues = (fields?: string[], original: boolean = false): IAnyObject => {
     return this.filterFields(fields).reduce(
       (o, c) => ({
         ...o,

@@ -1,12 +1,11 @@
-
-import fetch from "isomorphic-unfetch";
+import fetch from 'isomorphic-unfetch';
 import { applySnapshot, Instance, SnapshotIn, SnapshotOut, types } from 'mobx-state-tree';
-import { ClientQuery, makeEncryptedQuery, Tokens, Exception } from 'phusis';
+import { ClientQuery, Exception, makeEncryptedQuery, Tokens } from 'phusis';
 import { DataResponse } from '../../server/types';
 
-import { TokenStore, CurrentUserStore, anoninfo } from './authorize';
-import { Snackbar, initializeSnackbar } from "./snackbar";
 import config from '../config';
+import { anoninfo, CurrentUserStore, TokenStore } from './authorize';
+import { initializeSnackbar, Snackbar } from './snackbar';
 const Qs = types.model({
   name: types.identifier,
   status: types.string,
@@ -20,14 +19,14 @@ const Store = types
     results: types.array(Qs),
     snackbar: Snackbar
   })
-  .views(self => ({
+  .views((self) => ({
     getResult(name: string) {
-      return self.results.find(r => r.name === name);
+      return self.results.find((r) => r.name === name);
     }
   }))
-  .actions(self => ({
-    putResult(result: { name: string, status: string, data?: any }) {
-      const qs = self.results.find(r => r.name === result.name);
+  .actions((self) => ({
+    putResult(result: { name: string; status: string; data?: any }) {
+      const qs = self.results.find((r) => r.name === result.name);
       if (qs) {
         Object.assign(qs, result);
       } else {
@@ -35,31 +34,40 @@ const Store = types
       }
     }
   }))
-  .extend(self => ({
+  .extend((self) => ({
     actions: {
       async refreshTokens(): Promise<Tokens> {
         const currentTokens = self.tokens.getTokens();
-        const response = await makeRequest(config.getRefreshTokenUrl(), currentTokens.access_token, {
-          action: 'refresh_token',
-          payload: currentTokens
-        });
+        const response = await makeRequest(
+          config.getRefreshTokenUrl(),
+          currentTokens.access_token,
+          {
+            action: 'refresh_token',
+            payload: currentTokens
+          }
+        );
         self.tokens.updateTokens(response.result.data);
         return response.result.data as Tokens;
       }
     }
   }))
-  .extend(self => ({
+  .extend((self) => ({
     actions: {
       async request(path: string, query: ClientQuery): Promise<DataResponse> {
         const current = Date.getCurrentStamp();
-        let { access_token, expire_at } = self.tokens.getTokens();
+        const tks = self.tokens.getTokens();
+        const expire_at = tks.expire_at;
+        let access_token = tks.access_token;
         if (current > expire_at) {
           access_token = (await self.refreshTokens()).access_token;
         }
         const response = await makeRequest(config.wrapRequestUrl(path), access_token, query);
-        self.putResult({ name: response.query ? response.query.action : 'default', ...response.result });
+        self.putResult({
+          name: response.query ? response.query.action : 'default',
+          ...response.result
+        });
         if (response.result.status !== 'success') {
-          let ex = response.result.exception as Exception;
+          const ex = response.result.exception;
           if (ex && ex.message) {
             self.snackbar.warn(`${ex.message}(${ex.code})`);
           } else {
@@ -67,10 +75,10 @@ const Store = types
           }
         }
         return response;
-      },
+      }
     }
   }))
-  .extend(self => ({
+  .extend((self) => ({
     actions: {
       async do(query: ClientQuery): Promise<DataResponse> {
         return await self.request(config.doRequestPath, query);
@@ -99,7 +107,8 @@ export const initializeStore = async (isServer: boolean) => {
     }
     if (!store.tokens.isAnonymous() && store.currentUser.isAnonymous()) {
       const response = await makeRequest(config.getCurrentUserUrl(), currentTokens.access_token, {
-        action: 'current-user', payload: currentTokens
+        action: 'current-user',
+        payload: currentTokens
       });
       applySnapshot(store.currentUser, response.result.data.user);
     }
@@ -118,13 +127,18 @@ export const constructStore = (isServer: boolean, initialState: any) => {
   return store;
 };
 
-export async function makeRequest(url: string, access_token: string, query: ClientQuery): Promise<DataResponse> {
-  const { credential, q } = makeEncryptedQuery(access_token, query);
+export async function makeRequest<D = any>(
+  url: string,
+  accessToken: string,
+  query: ClientQuery
+): Promise<DataResponse<D>> {
+  const { credential, q } = makeEncryptedQuery(accessToken, query);
   const response = await fetch(url, {
     method: 'POST',
     body: JSON.stringify({ q }),
     headers: {
-      credential, 'Content-Type': 'application/json'
+      credential,
+      'Content-Type': 'application/json'
     }
   });
   return response.json();

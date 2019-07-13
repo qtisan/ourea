@@ -1,5 +1,6 @@
-import { Exception, QueryResponse } from "phusis";
+import { Exception, QueryResponse } from 'phusis';
 
+export type ResponseStatus = 'success' | 'fail' | 'unexpect';
 
 export interface OnlineUser {
   user_id: string;
@@ -8,7 +9,7 @@ export interface OnlineUser {
 }
 
 export interface QueryResult<D = any> {
-  status: string;
+  status: ResponseStatus;
   exception?: Exception;
   data?: D;
 }

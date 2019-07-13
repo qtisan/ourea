@@ -1,34 +1,35 @@
-import App, { Container, NextAppContext, DefaultAppIProps, AppProps } from 'next/app';
-import { initializeStore, IStore, constructStore } from '../lib/stores';
-import { getSnapshot } from 'mobx-state-tree';
 import { Provider } from 'mobx-react';
+import { getSnapshot } from 'mobx-state-tree';
+import App, { AppProps, Container, DefaultAppIProps, NextAppContext } from 'next/app';
 import { Exception } from 'phusis';
 import { ErrorInfo } from 'react';
+import { constructStore, initializeStore, IStore } from '../lib/stores';
 
 interface IOwnProps {
-  isServer: boolean
-  initialState: IStore
+  isServer: boolean;
+  initialState: IStore;
 }
 
-type OureaAppProps = IOwnProps & DefaultAppIProps
-  & AppProps<Record<string, string | string[] | undefined>, {}>;
+type OureaAppProps = IOwnProps &
+  DefaultAppIProps &
+  AppProps<Record<string, string | string[] | undefined>, {}>;
 class OureaApp extends App<OureaAppProps> {
-  private store: IStore
 
   static async getInitialProps({ Component, ctx }: NextAppContext) {
     const isServer = typeof window === 'undefined';
     const store = await initializeStore(isServer);
-    let pageProps = {}
+    let pageProps = {};
     if (Component.getInitialProps) {
       pageProps = await Component.getInitialProps(ctx);
     }
-    await new Promise(resolve => setTimeout(() => resolve(), 1000));
+    await new Promise((resolve) => setTimeout(() => resolve(), 1000));
     return {
       initialState: getSnapshot(store),
       isServer,
-      pageProps,
-    }
+      pageProps
+    };
   }
+  private store: IStore;
 
   constructor(props: OureaAppProps) {
     super(props);

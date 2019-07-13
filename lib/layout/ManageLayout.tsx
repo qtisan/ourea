@@ -1,49 +1,47 @@
-import React from 'react';
-import { withStyles, Theme, WithStyles } from '@material-ui/core/styles';
-import { createStyles } from '@material-ui/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import Hidden from '@material-ui/core/Hidden';
-import Navigator, { NavigatorProps } from '../components/Navigator';
+import { Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/styles';
+import React from 'react';
 import Header from '../components/Header';
+import Navigator, { NavigatorProps } from '../components/Navigator';
 import RootLayout from './RootLayout';
-
 
 const drawerWidth = 256;
 
-const styles = (theme: Theme) => createStyles({
-  drawer: {
-    [theme.breakpoints.up('sm')]: {
-      width: drawerWidth,
-      flexShrink: 0,
+const styles = (theme: Theme) =>
+  createStyles({
+    drawer: {
+      [theme.breakpoints.up('sm')]: {
+        width: drawerWidth,
+        flexShrink: 0
+      }
     },
-  },
-  appContent: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  mainContent: {
-    flex: 1,
-    padding: '48px 36px 0',
-    backgroundColor: theme.palette.grey[50],
-  },
-});
+    appContent: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    mainContent: {
+      flex: 1,
+      padding: '48px 36px 0',
+      backgroundColor: theme.palette.grey[50]
+    }
+  });
 
 export interface ManageLayoutProps extends WithStyles<typeof styles> {
-  classes: any,
-  children?: JSX.Element[] | JSX.Element,
-  navigatorProps: NavigatorProps
-};
+  classes: any;
+  children?: JSX.Element[] | JSX.Element;
+  navigatorProps: NavigatorProps;
+}
 
 export default withStyles(styles)(
-
   class extends React.Component<ManageLayoutProps, { mobileOpen: boolean }> {
     state = {
-      mobileOpen: false,
+      mobileOpen: false
     };
 
     handleDrawerToggle = () => {
-      this.setState(state => ({ mobileOpen: !state.mobileOpen }));
+      this.setState((state) => ({ mobileOpen: !state.mobileOpen }));
     };
 
     render() {
@@ -53,15 +51,15 @@ export default withStyles(styles)(
         <RootLayout>
           <nav className={classes.drawer}>
             <Hidden smUp implementation="js">
-              <Navigator {
-                ...{
+              <Navigator
+                {...{
                   ...navigatorProps,
                   style: { width: drawerWidth }
-                }
-              }
+                }}
                 variant="temporary"
                 open={this.state.mobileOpen}
-                onClose={this.handleDrawerToggle} />
+                onClose={this.handleDrawerToggle}
+              />
             </Hidden>
             <Hidden xsDown implementation="css">
               <Navigator {...{ style: { width: drawerWidth }, ...navigatorProps }} />
@@ -69,13 +67,10 @@ export default withStyles(styles)(
           </nav>
           <div className={classes.appContent}>
             <Header onDrawerToggle={this.handleDrawerToggle} />
-            <main className={classes.mainContent}>
-              {children}
-            </main>
+            <main className={classes.mainContent}>{children}</main>
           </div>
         </RootLayout>
       );
     }
   }
-
 );

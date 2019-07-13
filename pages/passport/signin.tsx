@@ -78,18 +78,22 @@ interface ISigninProps {
 class Signin extends Component<ISigninProps> {
   @observable showPassword = false;
 
-  signin = () => {
+  signin = async () => {
     const { getFieldValues, validateAll, getFieldErrors } = this.props.validator;
     const { store } = this.props;
-    validateAll().then((success: boolean) => {
-      if (success) {
-        console.log('values', getFieldValues());
-      } else {
-        getFieldErrors().forEach((e) => {
-          store.snackbar.error(e);
-        });
-      }
-    });
+    if (await validateAll()) {
+      const { signinEmail, signinPassword } = getFieldValues();
+      console.log('values', { signinEmail, signinPassword });
+      const response = await store.do({
+        action: 'passport/signin',
+        payload: { username: signinEmail, password: signinPassword }
+      });
+      console.log('response', response);
+    } else {
+      getFieldErrors().forEach((e) => {
+        store.snackbar.error(e);
+      });
+    }
   };
   handleClickShowPassword = () => {
     this.showPassword = !this.showPassword;

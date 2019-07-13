@@ -1,9 +1,8 @@
-
-import { parse } from 'url';
-import next from 'next';
 import express from 'express';
-import router from "./router";
-import config from "../lib/config";
+import next from 'next';
+import { parse } from 'url';
+import config from '../lib/config';
+import router from './router';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -19,11 +18,11 @@ app.prepare().then(() => {
     const parsedUrl = parse(req.originalUrl, true);
     handle(req, res, parsedUrl);
   });
-  server.use((req, res) => { 
-    req && res.status(404).end('404');
+  server.use((req, res) => {
+    if (req) {
+      res.status(404).end('404');
+    }
   });
 
-  server.listen(port, () =>
-    console.log(`[${app.currentPhase()}] server listen on port ${port}`)
-  );
+  server.listen(port, () => console.log(`[${app.currentPhase()}] server listen on port ${port}`));
 });

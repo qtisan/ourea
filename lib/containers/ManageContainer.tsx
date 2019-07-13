@@ -1,10 +1,10 @@
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import React from 'react';
-import { withStyles, Theme, createStyles, WithStyles } from '@material-ui/core/styles';
 
-import ManageLayout from "../layout/ManageLayout";
-import { CategoryItem } from "../components/Navigator";
+import { CategoryItem } from '../components/Navigator';
+import ManageLayout from '../layout/ManageLayout';
 
-import config from "../config";
+import config from '../config';
 
 const categories: CategoryItem[] = [
   {
@@ -16,8 +16,8 @@ const categories: CategoryItem[] = [
       { id: 'Storage', name: '存储', icon: 'PhotoSizeSelectActual', link: '/container' },
       { id: 'Hosting', name: '主机', icon: 'Public', link: '/container' },
       { id: 'Functions', name: '函数', icon: 'SettingsEthernet', link: '/container' },
-      { id: 'ML Kit', name: '软件包', icon: 'SettingsInputComponent', link: '/container' },
-    ],
+      { id: 'ML Kit', name: '软件包', icon: 'SettingsInputComponent', link: '/container' }
+    ]
   },
   {
     id: 'Quality',
@@ -25,40 +25,43 @@ const categories: CategoryItem[] = [
     children: [
       { id: 'user_nanage', name: '用户管理', icon: 'Settings', link: '/container' },
       { id: 'system_log', name: '操作日志', icon: 'Timer', link: '/container' },
-      { id: 'system_settings', name: '系统设置', icon: 'PhoneLinkSetup', link: '/container' },
-    ],
-  },
+      { id: 'system_settings', name: '系统设置', icon: 'PhoneLinkSetup', link: '/container' }
+    ]
+  }
 ];
 const logo = config.logo.transparent;
 
-const styles = (theme: Theme) => createStyles({
-  root: {
-    fontWeight: 'inherit',
-    '&:before': {
-      border: theme.spacing(0)
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      fontWeight: 'inherit',
+      '&:before': {
+        border: theme.spacing(0)
+      }
     }
-  }
-});
+  });
 
 interface Props extends WithStyles<typeof styles> {
-  classes: any,
-  children?: JSX.Element[] | JSX.Element
+  classes: any;
+  children?: JSX.Element[] | JSX.Element;
 }
 
 export default withStyles(styles)(
-
   class extends React.Component<Props, {}> {
     render() {
       const { children } = this.props;
 
       return (
-        <ManageLayout navigatorProps={{
-          logo, categories, overview: { text: '项目概览', link: '/manage' }
-        }} >
+        <ManageLayout
+          navigatorProps={{
+            logo,
+            categories,
+            overview: { text: '项目概览', link: '/manage' }
+          }}
+        >
           {children}
         </ManageLayout>
       );
     }
   }
-
 );

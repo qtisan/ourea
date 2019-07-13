@@ -6,9 +6,8 @@
     "target": "es2017",
     "isolatedModules": false,
     "noEmit": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
-  "include": [
-    "server/**/*.ts",
-    "lib/**/*.ts"
-  ]
+  "include": ["server/**/*.ts", "lib/**/*.ts"]
 }
