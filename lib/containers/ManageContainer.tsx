@@ -51,6 +51,7 @@ export default withStyles(styles)(
     render() {
       const { children } = this.props;
 
+      // TODO: check is signin, signin out with redirect in querystring.
       return (
         <ManageLayout
           navigatorProps={{

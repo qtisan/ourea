@@ -1,11 +1,13 @@
-import { Tokens, decrypt, encrypt, caught } from "phusis";
-import { types } from "mobx-state-tree";
-import config from "../config";
-
+import { types } from 'mobx-state-tree';
+import { caught, decrypt, encrypt, Tokens } from 'phusis';
+import { OnlineUser } from 'server/user';
+import config from '../config';
+import { StoreModel } from './store';
 
 export const anoninfo = config.getAnonymousUserInfo();
 
 const TOKEN_STK = config.keyOfTokensAtLocalStorage;
+// tslint:disable-next-line: variable-name
 const __local_tokens = {
   get(): Tokens {
     if (typeof localStorage !== 'undefined') {
@@ -14,7 +16,8 @@ const __local_tokens = {
         try {
           return JSON.parse(decrypt(lst));
         } catch (e) {
-          throw caught(e, `You parsed an illegal token! [${lst}]`);
+          console.error(`You parsed an illegal token! [${lst}]`, e);
+          return anoninfo.tokens;
         }
       } else {
         return anoninfo.tokens;
@@ -31,38 +34,60 @@ const __local_tokens = {
     }
   }
 };
-
-export const TokenStore = types.model({
+const smtk: StoreModel<Tokens> = {
   access_token: types.string,
   refresh_token: types.string,
   expire_at: types.number
-}).actions(self => ({
-  updateTokens(newTokens?: Tokens): void {
-    __local_tokens.set(newTokens || self);
-    Object.assign(self, newTokens);
-  },
-  getTokens(): Tokens {
-    const newTokens = __local_tokens.get();
-    Object.assign(self, newTokens);
-    return newTokens;
-  },
-  isAnonymous(): boolean {
-    return isAnonymous(self);
+};
+export const TokenStore = types
+  .model(smtk)
+  .actions((self) => ({
+    getTokens(): Tokens {
+      const newTokens = __local_tokens.get();
+      Object.assign(self, newTokens);
+      return newTokens;
+    },
+    setTokens(newTokens: Tokens): void {
+      __local_tokens.set(newTokens);
+      Object.assign(self, newTokens);
+    },
+    isAnonymous(): boolean {
+      return self.access_token === anoninfo.tokens.access_token;
+    }
+  }))
+  .extend((self) => ({
+    actions: {
+      updateTokens(newTokens?: Tokens): Tokens {
+        let ntk = newTokens;
+        if (!ntk) {
+          ntk = self.getTokens();
+        } else {
+          self.setTokens(ntk);
+        }
+        return ntk;
+      }
+    }
+  }));
+
+export async function initializeTokenStore(
+  isServer: boolean
+): Promise<ReturnType<typeof TokenStore.create>> {
+  if (!isServer) {
+    return TokenStore.create(__local_tokens.get());
   }
-}));
-export const CurrentUserStore = types.model({
+  return TokenStore.create(anoninfo.tokens);
+}
+
+const smcu: StoreModel<OnlineUser> = {
   user_id: types.string,
   username: types.string,
   avatar: types.string
-}).actions(self => ({
+};
+export const CurrentUserStore = types.model(smcu).actions((self) => ({
   isAnonymous() {
     return self.user_id === anoninfo.user.user_id;
+  },
+  setUser(user: OnlineUser) {
+    Object.assign(self, user);
   }
 }));
-
-export function isAnonymous(tokens?: Tokens): boolean {
-  if (tokens) {
-    return tokens.access_token === anoninfo.tokens.access_token;
-  }
-  return __local_tokens.get().access_token === anoninfo.tokens.access_token;
-}

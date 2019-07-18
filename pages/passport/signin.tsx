@@ -15,11 +15,13 @@ import { Component } from 'react';
 
 import { observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
+import { SingletonRouter } from 'next/router';
 import { md5 } from 'phusis';
 import CenteredGrid from '../../lib/components/CenteredGrid';
 import ErrortipInput from '../../lib/components/ErrortipInput';
 import config from '../../lib/config';
 import validatable, { Validator } from '../../lib/decorators/validatable';
+import withRouter from '../../lib/decorators/withRouter';
 import RootLayout from '../../lib/layout/RootLayout';
 import { IStore } from '../../lib/stores';
 
@@ -71,27 +73,29 @@ interface ISigninProps {
   classes: any;
   store: IStore;
   validator: Validator;
+  router: SingletonRouter;
 }
 @validatable<ISigninProps>()
 @inject('store')
+@withRouter
 @observer
 class Signin extends Component<ISigninProps> {
   @observable showPassword = false;
 
   signin = async () => {
-    const { getFieldValues, validateAll, getFieldErrors } = this.props.validator;
+    // TODO: disable button while signin.
+    const { getFieldValues, validateAll, getFieldErrors, setField } = this.props.validator;
     const { store } = this.props;
+    const anon = store.currentUser.isAnonymous();
+    if (!anon) {
+      setField('signinEmail', store.currentUser.username);
+    }
     if (await validateAll()) {
       const { signinEmail, signinPassword } = getFieldValues();
-      console.log('values', { signinEmail, signinPassword });
-      const response = await store.do({
-        action: 'passport/signin',
-        payload: { username: signinEmail, password: signinPassword }
-      });
-      console.log('response', response);
+      await store.signin(signinEmail, signinPassword);
     } else {
-      getFieldErrors().forEach((e) => {
-        store.snackbar.error(e);
+      getFieldErrors().forEach((err) => {
+        store.snackbar.error(err);
       });
     }
   };
@@ -100,10 +104,10 @@ class Signin extends Component<ISigninProps> {
   };
 
   render() {
-    const { classes, store } = this.props;
+    const { classes, store, router, validator } = this.props;
     const anon = store.currentUser.isAnonymous();
     const { showPassword } = this;
-    const { register, getFieldError } = this.props.validator;
+    const { register, getFieldError } = validator;
     return (
       <RootLayout>
         <CenteredGrid className={classes.root}>
@@ -128,11 +132,19 @@ class Signin extends Component<ISigninProps> {
               <Typography variant="h6">
                 {`Please sign in with your credentials below, or ${anon ? '' : 'Sign in with '}`}
               </Typography>
-              <Link {...(anon ? { href: 'signup' } : { onClick: () => {} })}>
+              <a
+                onClick={() =>
+                  anon
+                    ? router.replace('/signup')
+                    : (() => {
+                        // TODO: clear local user state.
+                      })()
+                }
+              >
                 <Typography variant="h6" className={classes.link}>
                   {anon ? 'SIGN UP' : 'ANOTHER USER'}
                 </Typography>
-              </Link>
+              </a>
               <Typography variant="h6">{anon ? ' for a new USER !' : '.'}</Typography>
             </CenteredGrid>
             <CenteredGrid style={{ marginTop: '2rem' }}>
@@ -191,6 +203,10 @@ class Signin extends Component<ISigninProps> {
                   errmsg={getFieldError('signinPassword')}
                 />
               </CenteredGrid>
+              {/*
+              // TODO: add progress bar while signin.
+              // TODO: add access key with <Enter>.
+              */}
               <CenteredGrid>
                 <Fab size="large" color="primary" className={classes.submit} onClick={this.signin}>
                   <Directions />
@@ -203,5 +219,5 @@ class Signin extends Component<ISigninProps> {
     );
   }
 }
-
+// TODO: lift the withRouter to a decorator.
 export default withStyles(styles)(Signin);

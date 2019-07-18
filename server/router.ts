@@ -1,32 +1,28 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { ClientQuery, Exception, extractQuery, isError, isException, refreshTokens } from 'phusis';
+import { Exception, extractQuery, isError, isException, ResponseStatus } from 'phusis';
 import config from '../lib/config';
 import { anoninfo } from '../lib/stores/authorize';
 import { errswitch, makeError } from './errors';
-import { DataResponse, OnlineUser, ResponseStatus } from './types';
-import {
-  executeQuery,
-  getUidByAccessToken,
-  getUserInfoByAccessToken,
-  verifyAndSaveRefreshToken
-} from './user';
+import { ActionResponseDataType, ActionType, dispatch } from './services';
+import { ClientQuery } from './services';
+import { getUserInfoByAccessToken, OnlineUser } from './user';
 
 declare module 'express' {
   interface Response {
     locals: {
-      query: ClientQuery;
+      query: ClientQuery<any>;
       user: OnlineUser;
       credential: string;
       q: string;
     };
-    respond<T = any>(
-      data: T,
+    respond<A extends ActionType>(
       status: ResponseStatus,
-      query?: ClientQuery,
+      data?: ActionResponseDataType<A>,
+      query?: ClientQuery<A>,
       exception?: Exception,
       user?: OnlineUser
     ): Response;
-    reply<T>(data: T): Response;
+    reply<A extends ActionType>(data: ActionResponseDataType<A>): Response;
     fail(exception: Exception | Error | string | number, status?: number): Response;
   }
 }
@@ -35,16 +31,20 @@ class ServerRoutes {
   static router: Router = Router();
 
   @use async 'append respond method'(req: Request, res: Response, next: NextFunction) {
-    res.respond = <T>(
-      data: T,
+    res.respond = <A extends ActionType>(
       status: ResponseStatus,
-      query?: ClientQuery,
+      data: ActionResponseDataType<A>,
+      query?: ClientQuery<A>,
       exception?: Exception,
       user?: OnlineUser
     ) => {
-      const asset: DataResponse<T> = {
-        result: { status, data, exception },
-        query: query || { action: 'q', payload: req.body.q },
+      const asset = {
+        result: {
+          status,
+          data,
+          exception: status === 'fail' && exception ? exception.code : undefined
+        },
+        query: query || ({ action: 'system/noop', payload: req.body.q } as ClientQuery<A>),
         user: user || anoninfo.user
       };
       const code = status === 'success' ? 200 : exception ? exception.code : 500;
@@ -54,26 +54,6 @@ class ServerRoutes {
     await next();
   }
 
-  @post async [`/${config.refreshTokenPath}`](req: Request, res: Response): Promise<void> {
-    const credential = req.header('credential');
-    const q = req.body.q;
-    if (!credential || !q) {
-      failed(res)(400);
-      return;
-    }
-    try {
-      const { query } = extractQuery(credential, q);
-      const newTokens = await refreshTokens(
-        query.payload,
-        getUidByAccessToken,
-        verifyAndSaveRefreshToken
-      );
-      res.respond(newTokens, 'success', query);
-    } catch (e) {
-      failed(res)(errswitch(e, 432));
-    }
-  }
-
   @use async 'check credential'(req: Request, res: Response, next: NextFunction) {
     const credential = req.header('credential');
     const q = req.body.q;
@@ -81,29 +61,41 @@ class ServerRoutes {
       failed(res)(400);
       return;
     }
+    res.locals.credential = credential;
+    res.locals.q = q;
     try {
       const { token, query } = extractQuery(credential, q);
+      res.locals.query = query as ClientQuery<any>;
       const userinfo = await getUserInfoByAccessToken(token);
-      res.locals.query = query;
       res.locals.user = userinfo.user;
-      res.locals.credential = credential;
-      res.locals.q = q;
+      if (
+        userinfo.expired &&
+        query.action !== 'passport/refresh-token' &&
+        query.action !== 'passport/current-user'
+      ) {
+        failed(res, userinfo.user, query as ClientQuery<any>)(431);
+        return;
+      }
+      if (query.action === 'passport/current-user') {
+        res.locals.query.payload = { expired: userinfo.expired };
+      }
       await next();
     } catch (e) {
-      failed(res)(errswitch(e, 431));
+      failed(res)(errswitch(e, 500));
     }
   }
 
   @post async [`/${config.doRequestPath}`](req: Request, res: Response): Promise<void> {
     const { user, query } = res.locals;
-    res.reply = <T>(data: T) => res.respond(data, 'success', query, undefined, user);
-    res.fail = failed(res, user);
+    res.reply = <A extends ActionType>(data: ActionResponseDataType<A>) =>
+      res.respond<A>('success', data, query, undefined, user);
+    res.fail = failed(res, user, query);
     try {
-      const { status, exception, data } = await executeQuery({ user, query });
+      const { status, exception, data } = await dispatch({ user, query });
       if (status === 'fail') {
         res.fail(exception || 600);
       } else if (status === 'success') {
-        res.reply(data);
+        res.reply(data as any);
       } else {
         res.fail(req.body.q, 600);
       }
@@ -124,7 +116,7 @@ function use(target: ServerRoutes, propertyKey: string, descriptor: PropertyDesc
   }
 }
 
-function failed(res: Response, user?: OnlineUser) {
+function failed<A extends ActionType>(res: Response, user?: OnlineUser, query?: ClientQuery<A>) {
   return (
     exception: Exception | Error | string | number = makeError(500),
     status: number = 500
@@ -141,7 +133,7 @@ function failed(res: Response, user?: OnlineUser) {
     } else {
       ex = makeError(900);
     }
-    res.respond(null, 'fail', undefined, ex, user);
+    res.respond('fail', undefined, query, ex, user);
     return res;
   };
 }

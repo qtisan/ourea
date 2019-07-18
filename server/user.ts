@@ -1,13 +1,17 @@
-import { caught, ExecuteQueryPayload, OnlineUserPack, ServerTokens, Tokens } from 'phusis';
+import { caught, makeTokens, OnlineUserPack, ServerTokens, Tokens } from 'phusis';
 import { anoninfo } from '../lib/stores/authorize';
 import { makeError } from './errors';
-import { dispatch } from './services';
-import { OnlineUser, QueryResult } from './types';
+
+export interface OnlineUser {
+  user_id: string;
+  username: string;
+  avatar: string;
+}
 
 export const userinfo = {
   user: {
     user_id: 'eo_q7gynv67fjhqkrbsqvrdqvhdv_edlhoyqv6t',
-    username: 'Lennon',
+    username: 'qtisan@hotmail.com',
     avatar: '/static/images/ourea_avatar-male.svg'
   },
   serverTokens: {
@@ -23,21 +27,10 @@ export const userinfo = {
         'CqCZWFHEyIisCbB2r5BlXFT2HFGtT',
       expire_at: 1562927189
     }
-  }
+  },
+  user_password: '5c0d9e7fd4c4684bd94a8a3297833f28'
 };
 
-export async function executeQuery({
-  user,
-  query
-}: ExecuteQueryPayload<OnlineUser>): Promise<QueryResult> {
-  // dispatch query with action and user with permission
-  try {
-    const data = await dispatch({ user, ...query });
-    return { status: 'success', data };
-  } catch (e) {
-    return { status: 'fail', data: null, exception: e };
-  }
-}
 export async function getUidByAccessToken(accessToken: string): Promise<string> {
   if (!accessToken) {
     throw caught('access_token should not be empty!');
@@ -48,26 +41,39 @@ export async function verifyAndSaveRefreshToken(
   refreshToken: string,
   refreshedTokens: ServerTokens
 ): Promise<Tokens> {
-  if (refreshToken.indexOf('Q') === refreshToken.length - 1) {
-    // mock expired refresh token.
-    throw caught('refresh token expired.', 9009);
+  if (refreshToken && userinfo.serverTokens.refreshExpire < Date.getCurrentStamp()) {
+    // TODO: mock expired refresh token. save to file for mocking.
+    throw makeError(432);
   } else {
     return refreshedTokens.tokens;
   }
 }
 export async function getUserInfoByAccessToken(
   accessToken?: string
-): Promise<OnlineUserPack<OnlineUser>> {
-  if (!accessToken || accessToken === anoninfo.tokens.access_token) {
-    // no tokens supplies, return anonymous info.
-    return anoninfo;
-  } else {
-    // try to compare the token expire time at database, and get user.
-    const currentUserInfo = userinfo;
-    if (currentUserInfo.serverTokens.tokens.expire_at < Date.getCurrentStamp()) {
-      throw makeError(431);
-    } else {
-      return { user: currentUserInfo.user, tokens: currentUserInfo.serverTokens.tokens };
-    }
+): Promise<OnlineUserPack<OnlineUser> & { expired: boolean }> {
+  if (accessToken === userinfo.serverTokens.tokens.access_token) {
+    return {
+      user: userinfo.user,
+      tokens: userinfo.serverTokens.tokens,
+      expired: userinfo.serverTokens.refreshExpire < Date.getCurrentStamp()
+    };
   }
+  return { user: anoninfo.user, tokens: anoninfo.tokens, expired: false };
+}
+export async function getUserInfoByPassword({
+  username,
+  password
+}: {
+  username: string;
+  password: string;
+}) {
+  if (password === userinfo.user_password && username === userinfo.user.username) {
+    // TODO: save to redis.
+    userinfo.serverTokens = makeTokens(userinfo.user.user_id);
+    return {
+      user: userinfo.user,
+      tokens: userinfo.serverTokens.tokens
+    };
+  }
+  throw makeError(441);
 }

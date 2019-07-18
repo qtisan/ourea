@@ -1,7 +1,7 @@
 import 'array-polyfill.js';
 import { md5, OnlineUserPack } from 'phusis';
 import { resolve } from 'url';
-import { OnlineUser } from '../server/types';
+import { OnlineUser } from '../server/user';
 
 const dev = process.env.NODE_ENV === 'development';
 
@@ -10,34 +10,41 @@ const prodConfig = {
   // should match with `urlPrefix`, by request rewrite, nginx for example.
   appPort: 9899,
   urlPrefix: 'http://ourea.imqx.com/',
-  requestPrefix: `${md5('ourea').substr(0, 7)}/`,
-  refreshTokenPath: md5('passport/refresh-token')
+  requestPrefix: `${md5('ourea').substr(0, 7)}/`
 };
 
 export class OureaConfig {
   [s: string]: any;
-  appPort: number;
+  dev: boolean = false;
+  // put development configurations here.
+  appPort: number = 3000;
   urlPrefix: string;
-  requestPrefix: string;
-
-  refreshTokenPath: string;
-  doRequestPath: string;
-  currentUserPath: string;
+  requestPrefix: string = 'stuff/';
+  doRequestPath: string = 'do';
 
   logo: { main: string; primary: string; secondary: string; transparent: string };
   icon: { main: string; primary: string; secondary: string; transparent: string };
   avatar: { male: string; female: string; unkown: string };
   background: { signin: string };
-  anonymousInfo: OnlineUserPack<OnlineUser>;
+  anonymousInfo: OnlineUserPack<OnlineUser> = {
+    user: {
+      user_id: 'fe5261b9-9d9e-524a-95e2-0469e6f8030b',
+      username: 'Anonymous',
+      avatar: 'static/images/ourea_avatar-unkown.svg'
+    },
+    tokens: {
+      access_token:
+        'zIRUzt4yCA3PuVTAitTlt1ahY5WeCPNPxVy0CA3PiZrJBAu9uA0wGV7MisUJBAaOp20Ji2CwBm75GVr5iALNBl4P' +
+        'CPNPitONYtRyCA39T2u9G27MBAul84',
+      refresh_token:
+        'zIRUzt4yCA3PHZWZHZWlY-fUn5wynPCqCkWjiKCbCZiyT2C5BVCMp2y0GVrwT2CUusUMTVrIp2QUTAyyTZuFBmBN' +
+        'uPCqCZWFHEyIisCbB2r5BACNTlL5BNQQQDT',
+      expire_at: 2961949263
+    }
+  };
   keyOfTokensAtLocalStorage: string;
   constructor(isDev: boolean, prodCfg?: any) {
-    // put development configurations here.
-    this.appPort = 3000;
     this.urlPrefix = `http://localhost:${this.appPort}/`;
-    this.requestPrefix = 'stuff/';
-    this.refreshTokenPath = 'passport/refresh-token';
-    this.doRequestPath = 'do';
-    this.currentUserPath = 'passport/current-user';
     this.logo = {
       main: this.prefixed('static/images/ourea_brand-main.svg'),
       primary: this.prefixed('static/images/ourea_brand-primary.svg'),
@@ -58,26 +65,11 @@ export class OureaConfig {
     this.background = {
       signin: this.prefixed('static/images/ourea_bg.jpg')
     };
-    this.anonymousInfo = {
-      user: {
-        user_id: 'fe5261b9-9d9e-524a-95e2-0469e6f8030b',
-        username: 'Anonymous',
-        avatar: 'static/images/ourea_avatar-unkown.svg'
-      },
-      tokens: {
-        access_token:
-          'zIRUzt4yCA3PuVTAitTlt1ahY5WeCPNPxVy0CA3PiZrJBAu9uA0wGV7MisUJBAaOp20Ji2CwBm75GVr5iALNBl4P' +
-          'CPNPitONYtRyCA39T2u9G27MBAul84',
-        refresh_token:
-          'zIRUzt4yCA3PHZWZHZWlY-fUn5wynPCqCkWjiKCbCZiyT2C5BVCMp2y0GVrwT2CUusUMTVrIp2QUTAyyTZuFBmBN' +
-          'uPCqCZWFHEyIisCbB2r5BACNTlL5BNQQQDT',
-        expire_at: 2961949263
-      }
-    };
     this.keyOfTokensAtLocalStorage = md5('client-tokens');
     if (!isDev) {
       this.parseProdConfig(prodCfg);
     }
+    this.dev = isDev;
   }
   prefixed(...paths: string[]): string {
     const pre = isUrl(paths[0]) ? '' : this.urlPrefix;
@@ -87,14 +79,11 @@ export class OureaConfig {
     const pre = isUrl(paths[0]) ? '' : resolve(this.urlPrefix, this.requestPrefix);
     return paths.reduce((url, path) => resolve(url, path), pre);
   }
-  getRefreshTokenUrl(): string {
-    return this.wrapRequestUrl(this.refreshTokenPath);
-  }
-  getCurrentUserUrl(): string {
-    return this.wrapRequestUrl(this.currentUserPath);
-  }
   getDoRequestUrl(): string {
     return this.wrapRequestUrl(this.doRequestPath);
+  }
+  getSigninUrl(): string {
+    return this.prefixed(this.signinPath);
   }
   parseProdConfig(prodCfg?: any): OureaConfig {
     Object.assign(this, prodCfg);
@@ -105,8 +94,15 @@ export class OureaConfig {
   }
 }
 
-export default new OureaConfig(dev, prodConfig);
-
+let config: OureaConfig;
 function isUrl(path: string) {
   return path && (path.indexOf('http://') === 0 || path.indexOf('https://') === 0);
 }
+function getConfig() {
+  if (!config) {
+    config = new OureaConfig(dev, prodConfig);
+  }
+  return config;
+}
+
+export default getConfig();
