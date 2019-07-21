@@ -38,5 +38,5 @@
     ]
   },
   "compileOnSave": true,
-  "exclude": ["node_modules", ".vscode", ".next", "build", "dist"]
+  "exclude": ["node_modules", ".vscode", ".next", "build", "dist", "volume"]
 }

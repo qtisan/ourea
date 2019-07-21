@@ -11,6 +11,7 @@ import {
   Tokens
 } from 'phusis';
 import { anoninfo } from '../lib/stores/authorize';
+import * as db from './db';
 import { errswitch, makeError } from './errors';
 import {
   getUidByAccessToken,
@@ -23,8 +24,10 @@ import { PickMatching } from './utility';
 
 class ActionPortal {
   user: OnlineUser;
+  db: typeof db;
   constructor(user: OnlineUser) {
     this.user = user;
+    this.db = db;
   }
 
   async 'system/noop'(payload: any) {

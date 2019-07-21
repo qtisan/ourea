@@ -10,7 +10,6 @@ import {
 } from '@material-ui/core';
 import { Theme, withStyles } from '@material-ui/core/styles';
 import { Directions, Visibility, VisibilityOff } from '@material-ui/icons';
-import Link from 'next/link';
 import { Component } from 'react';
 
 import { observable } from 'mobx';

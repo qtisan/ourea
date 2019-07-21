@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    container_name: ${NAME}-web
+    depends_on:
+      - mongo
+    ports:
+      - '${PORT}:8000'
+    volumes:
+      - ./volume/logs:/${NS}/${NAME}/volume/logs
+    env_file:
+      - ./.env
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - '${MONGO_PORT}:27017'
+    volumes:
+      - ./volume/data:/data/db
+    env_file:
+      - ./.env

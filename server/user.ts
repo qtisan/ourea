@@ -1,13 +1,10 @@
 import { caught, makeTokens, OnlineUserPack, ServerTokens, Tokens } from 'phusis';
 import { anoninfo } from '../lib/stores/authorize';
+import * as db from './db';
+import { IUser } from './db/model/user';
 import { makeError } from './errors';
 
-export interface OnlineUser {
-  user_id: string;
-  username: string;
-  avatar: string;
-}
-
+export interface OnlineUser extends IUser {}
 export const userinfo = {
   user: {
     user_id: 'eo_q7gynv67fjhqkrbsqvrdqvhdv_edlhoyqv6t',
@@ -67,13 +64,21 @@ export async function getUserInfoByPassword({
   username: string;
   password: string;
 }) {
-  if (password === userinfo.user_password && username === userinfo.user.username) {
-    // TODO: save to redis.
-    userinfo.serverTokens = makeTokens(userinfo.user.user_id);
+  const user = await db.User.findOne({ username });
+  if (!user) {
+    throw makeError(442);
+  }
+  const token = await db.Token.findOne({ user_password: password });
+  if (!token || token.user_id !== user.user_id) {
+    throw makeError(441);
+  }
+  const newTokens = makeTokens(token.user_id);
+  const res = await db.Token.update({ user_id: token.user_id }, newTokens);
+  if (res) {
     return {
-      user: userinfo.user,
-      tokens: userinfo.serverTokens.tokens
+      user,
+      tokens: newTokens.tokens
     };
   }
-  throw makeError(441);
+  throw makeError(621);
 }

@@ -3,20 +3,35 @@ import { md5, OnlineUserPack } from 'phusis';
 import { resolve } from 'url';
 import { OnlineUser } from '../server/user';
 
+const {
+  NS = process.env.NS,
+  NAME = process.env.NAME,
+  PORT = process.env.PORT,
+  MONGO_PORT = process.env.PORT,
+  MONGO_HOST = process.env.MONGO_HOST,
+  MONGO_INITDB_ROOT_USERNAME = process.env.MONGO_INITDB_ROOT_USERNAME,
+  MONGO_INITDB_ROOT_PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD,
+  MONGO_INITDB_DATABASE = process.env.MONGO_INITDB_DATABASE
+} = {};
 const dev = process.env.NODE_ENV === 'development';
 
 const prodConfig = {
   // put production configurations here.
   // should match with `urlPrefix`, by request rewrite, nginx for example.
-  appPort: 9899,
+  dev: false,
+  appPort: PORT || 8000,
   urlPrefix: 'http://ourea.imqx.com/',
-  requestPrefix: `${md5('ourea').substr(0, 7)}/`
+  requestPrefix: `${md5(`${NS}-${NAME}`).substr(0, 7)}/`,
+  dbUrl:
+    `mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}` +
+    `/${MONGO_INITDB_DATABASE}?authSource=admin`
 };
 
 export class OureaConfig {
   [s: string]: any;
-  dev: boolean = false;
+  dev: boolean = true;
   // put development configurations here.
+  dbUrl = 'mongodb://root:root-sample-db@localhost:27017/ourea_db?authSource=admin';
   appPort: number = 3000;
   urlPrefix: string;
   requestPrefix: string = 'stuff/';

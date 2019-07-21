@@ -7,7 +7,7 @@ import router from './router';
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
-const port = process.env.PORT || 3000;
+const port = config.appPort || 3000;
 
 app.prepare().then(() => {
   const server = express();
@@ -24,5 +24,6 @@ app.prepare().then(() => {
     }
   });
 
-  server.listen(port, () => console.log(`[${app.currentPhase()}] server listen on port ${port}`));
+  // tslint:disable-next-line: no-console
+  server.listen(port, () => console.info(`[${app.currentPhase()}] server listen on port ${port}`));
 });

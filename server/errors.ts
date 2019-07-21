@@ -9,9 +9,12 @@ const errors: { [code: number]: string } = {
   432: 'refresh_token expired',
   440: 'user not found',
   441: 'username and password not match',
+  442: 'user do not exist',
 
   600: "some error found in user's query",
   601: 'no this action in service',
+
+  621: 'database save error',
 
   900: 'unbelievable error',
   901: '[critical]unexpected error'
