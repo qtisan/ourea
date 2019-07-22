@@ -7,18 +7,12 @@ import {
   OnlineUserPack,
   QueryResponse as IQueryResponse,
   QueryResult as IQueryResult,
-  refreshTokens,
   Tokens
 } from 'phusis';
 import { anoninfo } from '../lib/stores/authorize';
 import * as db from './db';
 import { errswitch, makeError } from './errors';
-import {
-  getUidByAccessToken,
-  getUserInfoByPassword,
-  OnlineUser,
-  verifyAndSaveRefreshToken
-} from './user';
+import { getUserInfoByPassword, OnlineUser, refreshTokens } from './user';
 import { PickMatching } from './utility';
 // TODO: need to be permissioned.
 
@@ -52,7 +46,7 @@ class ActionPortal {
   }
   async 'passport/refresh-token'(payload: any): Promise<Tokens> {
     try {
-      return await refreshTokens(payload as Tokens, getUidByAccessToken, verifyAndSaveRefreshToken);
+      return await refreshTokens(payload as Tokens);
     } catch (e) {
       throw errswitch(e, 432);
     }

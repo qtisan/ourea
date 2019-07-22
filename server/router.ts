@@ -1,5 +1,13 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { Exception, extractQuery, isError, isException, ResponseStatus } from 'phusis';
+import {
+  decodeByMap,
+  encodeByMap,
+  Exception,
+  extractQuery,
+  isError,
+  isException,
+  ResponseStatus
+} from 'phusis';
 import config from '../lib/config';
 import { anoninfo } from '../lib/stores/authorize';
 import { errswitch, makeError } from './errors';
@@ -48,7 +56,7 @@ class ServerRoutes {
         user: user || anoninfo.user
       };
       const code = status === 'success' ? 200 : exception ? exception.code : 500;
-      res.status(code).json(asset);
+      res.status(code).json({ r: encodeByMap(JSON.stringify(asset), { ...config.crypto }) });
       return res;
     };
     await next();
@@ -64,7 +72,9 @@ class ServerRoutes {
     res.locals.credential = credential;
     res.locals.q = q;
     try {
-      const { token, query } = extractQuery(credential, q);
+      const { token, query } = extractQuery(credential, q, {
+        remix: (code: string) => decodeByMap(code, { ...config.crypto }) as string
+      });
       res.locals.query = query as ClientQuery<any>;
       const userinfo = await getUserInfoByAccessToken(token);
       res.locals.user = userinfo.user;

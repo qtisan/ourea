@@ -3,6 +3,7 @@ import { caught, Exception, isError, isException } from 'phusis';
 const errors: { [code: number]: string } = {
   500: 'unkonwn error occured',
   550: 'application runs error',
+  551: 'response data not correct',
 
   400: 'credentials not correct',
   431: 'access_token expired',

@@ -122,10 +122,11 @@ class Signin extends Component<ISigninProps> {
             </CenteredGrid>
             <CenteredGrid style={{ marginTop: '1rem' }}>
               <Typography variant="h4">
-                {anon
-                  ? 'Hey! Nice to meet you, my friend. '
-                  : `Welcome back, dear ${store.currentUser.username}!`}
+                {anon ? 'Hey! Nice to meet you, my friend. ' : store.currentUser.username}
               </Typography>
+            </CenteredGrid>
+            <CenteredGrid>
+              <Typography variant="h6">{anon ? '' : 'Welcome back!'}</Typography>
             </CenteredGrid>
             <CenteredGrid>
               <Typography variant="h6">

@@ -1,5 +1,5 @@
 import 'array-polyfill.js';
-import { md5, OnlineUserPack } from 'phusis';
+import { decodeByMap, md5, OnlineUserPack } from 'phusis';
 import { resolve } from 'url';
 import { OnlineUser } from '../server/user';
 
@@ -58,6 +58,12 @@ export class OureaConfig {
     }
   };
   keyOfTokensAtLocalStorage: string;
+  crypto = {
+    bit: 6,
+    map: 'ScdmX7as2uiQ4fA0yZk3j6_qw-pBTGnHxz8LKErWVtDCRoYehN9IlUJ51FMbvgOP',
+    join: '>@.<<',
+    cipher: 'ourea_cipher'
+  };
   constructor(isDev: boolean, prodCfg?: any) {
     this.urlPrefix = `http://localhost:${this.appPort}/`;
     this.logo = {

@@ -7,7 +7,14 @@ import {
   SnapshotOut,
   types
 } from 'mobx-state-tree';
-import { Exception, makeEncryptedQuery, ResponseStatus, Tokens } from 'phusis';
+import {
+  decodeByMap,
+  encodeByMap,
+  Exception,
+  makeEncryptedQuery,
+  ResponseStatus,
+  Tokens
+} from 'phusis';
 
 import Router from 'next/router';
 import { makeError } from '../../server/errors';
@@ -189,7 +196,9 @@ export async function makeRequest<A extends ActionType>(
   query: ClientQuery<A>
 ): Promise<QueryResponse<A>> {
   // TODO: update the encrypt method to a custom option.
-  const { credential, q } = makeEncryptedQuery(accessToken, query);
+  const { credential, q } = makeEncryptedQuery(accessToken, query, {
+    mix: (code: string) => encodeByMap(code, { ...config.crypto }) as string
+  });
   const response = await fetch(url, {
     method: 'POST',
     body: JSON.stringify({ q }),
@@ -199,10 +208,14 @@ export async function makeRequest<A extends ActionType>(
     }
   });
   const responseJson = await response.json();
-  if (responseJson.result.exception) {
-    responseJson.result.exception = makeError(responseJson.result.exception);
+  if (responseJson.r) {
+    const j = JSON.parse(decodeByMap(responseJson.r, { ...config.crypto }));
+    if (j.result.exception) {
+      j.result.exception = makeError(j.result.exception);
+    }
+    return j as QueryResponse<A>;
   }
-  return responseJson as QueryResponse<A>;
+  throw makeError(551);
 }
 
 async function fetchInitialState(isServer: boolean = typeof window === 'undefined') {

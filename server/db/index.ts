@@ -2,6 +2,7 @@ import { connect } from 'mongoose';
 import config from '../../lib/config';
 
 (function doConnect() {
+  console.info(`>>> connecting to database...`);
   connect(
     config.dbUrl,
     { useNewUrlParser: true }

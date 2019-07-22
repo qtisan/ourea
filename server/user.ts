@@ -1,61 +1,39 @@
-import { caught, makeTokens, OnlineUserPack, ServerTokens, Tokens } from 'phusis';
+import { makeTokens, OnlineUserPack, Tokens } from 'phusis';
 import { anoninfo } from '../lib/stores/authorize';
 import * as db from './db';
 import { IUser } from './db/model/user';
 import { makeError } from './errors';
 
 export interface OnlineUser extends IUser {}
-export const userinfo = {
-  user: {
-    user_id: 'eo_q7gynv67fjhqkrbsqvrdqvhdv_edlhoyqv6t',
-    username: 'qtisan@hotmail.com',
-    avatar: '/static/images/ourea_avatar-male.svg'
-  },
-  serverTokens: {
-    tokenKey: '=yM2IyM0IyNvdXJlYV9hdXRoX2NpcGhlcg=I',
-    refreshKey: '=yM4IyM0IyNvdXJlYV9hdXRoX2NpcGhlcg=I',
-    refreshExpire: 1563185789,
-    tokens: {
-      access_token:
-        'zIRUzt4yCA3PuVTAitTlt1ahY5WeCPNPxVy0CA3PiVf8H2xkzVM5TAxZYZO9Y1RPH1-5HZa9xZO0xyfyiE93n1y9xAiUCP' +
-        'NPitONYtRyCA39T2uIG2C1B7QFGtT',
-      refresh_token:
-        'zIRUzt4yCA3PHZWZHZWlY-fUn5wynPCqCkWjiKCbCZWht1X1i1yexAu1iZj3HVwIukT9xkR0Hti3iDi8iVaqYEfMHtu5xK' +
-        'CqCZWFHEyIisCbB2r5BlXFT2HFGtT',
-      expire_at: 1562927189
-    }
-  },
-  user_password: '5c0d9e7fd4c4684bd94a8a3297833f28'
-};
 
-export async function getUidByAccessToken(accessToken: string): Promise<string> {
-  if (!accessToken) {
-    throw caught('access_token should not be empty!');
+export async function refreshTokens(tokens: Tokens): Promise<Tokens> {
+  const token = await db.Token.findOne({ 'tokens.access_token': tokens.access_token });
+  if (!token) {
+    throw makeError(440);
   }
-  return userinfo.user.user_id;
-}
-export async function verifyAndSaveRefreshToken(
-  refreshToken: string,
-  refreshedTokens: ServerTokens
-): Promise<Tokens> {
-  if (refreshToken && userinfo.serverTokens.refreshExpire < Date.getCurrentStamp()) {
-    // TODO: mock expired refresh token. save to file for mocking.
+  if (token.refreshExpire < Date.getCurrentStamp()) {
     throw makeError(432);
-  } else {
-    return refreshedTokens.tokens;
   }
+  const newToken = makeTokens(token.user_id);
+  Object.assign(token, newToken);
+  const res = await token.save();
+  if (!res) {
+    throw makeError(440);
+  }
+  return token.tokens;
 }
 export async function getUserInfoByAccessToken(
   accessToken?: string
 ): Promise<OnlineUserPack<OnlineUser> & { expired: boolean }> {
-  if (accessToken === userinfo.serverTokens.tokens.access_token) {
-    return {
-      user: userinfo.user,
-      tokens: userinfo.serverTokens.tokens,
-      expired: userinfo.serverTokens.refreshExpire < Date.getCurrentStamp()
-    };
+  const token = await db.Token.findOne({ 'tokens.access_token': accessToken });
+  if (!token) {
+    return { user: anoninfo.user, tokens: anoninfo.tokens, expired: false };
   }
-  return { user: anoninfo.user, tokens: anoninfo.tokens, expired: false };
+  const user = await db.User.findOne({ user_id: token.user_id });
+  if (!user) {
+    throw makeError(440);
+  }
+  return { user, tokens: token.tokens, expired: token.refreshExpire < Date.getCurrentStamp() };
 }
 export async function getUserInfoByPassword({
   username,
@@ -73,7 +51,7 @@ export async function getUserInfoByPassword({
     throw makeError(441);
   }
   const newTokens = makeTokens(token.user_id);
-  const res = await db.Token.update({ user_id: token.user_id }, newTokens);
+  const res = await db.Token.updateOne({ user_id: token.user_id }, newTokens);
   if (res) {
     return {
       user,
