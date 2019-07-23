@@ -195,7 +195,6 @@ export async function makeRequest<A extends ActionType>(
   accessToken: string,
   query: ClientQuery<A>
 ): Promise<QueryResponse<A>> {
-  // TODO: update the encrypt method to a custom option.
   const { credential, q } = makeEncryptedQuery(accessToken, query, {
     mix: (code: string) => encodeByMap(code, { ...config.crypto }) as string
   });

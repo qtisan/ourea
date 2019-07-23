@@ -1,8 +1,9 @@
 import { types } from 'mobx-state-tree';
 import { caught, decrypt, encrypt, Tokens } from 'phusis';
 import { OnlineUser } from 'server/user';
+import { clientTokenSMD } from '../../server/db/model/token';
+import { userSMD } from '../../server/db/model/user';
 import config from '../config';
-import { StoreModel } from './store';
 
 export const anoninfo = config.getAnonymousUserInfo();
 
@@ -34,13 +35,8 @@ const __local_tokens = {
     }
   }
 };
-const smtk: StoreModel<Tokens> = {
-  access_token: types.string,
-  refresh_token: types.string,
-  expire_at: types.number
-};
 export const TokenStore = types
-  .model(smtk)
+  .model(clientTokenSMD)
   .actions((self) => ({
     getTokens(): Tokens {
       const newTokens = __local_tokens.get();
@@ -78,12 +74,7 @@ export async function initializeTokenStore(
   return TokenStore.create(anoninfo.tokens);
 }
 
-const smcu: StoreModel<OnlineUser> = {
-  user_id: types.string,
-  username: types.string,
-  avatar: types.string
-};
-export const CurrentUserStore = types.model(smcu).actions((self) => ({
+export const CurrentUserStore = types.model(userSMD).actions((self) => ({
   isAnonymous() {
     return self.user_id === anoninfo.user.user_id;
   },

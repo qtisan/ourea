@@ -1,16 +1,17 @@
 import { Document, model, Model, Schema } from 'mongoose';
-import { ITypeMappingMongoose } from '../../utility';
+import { ModelTypeMapping, toStoreModelDescriptor } from '../../utility';
 
-const schema = {
+export const userDescriptor = {
   user_id: String,
   username: String,
   avatar: String
 };
+export const userSMD = toStoreModelDescriptor(userDescriptor);
 
-export type IUser = ITypeMappingMongoose<typeof schema>;
+export type IUser = ModelTypeMapping<typeof userDescriptor>;
 
 export interface IUserModel extends IUser, Document {}
 
-export const UserSchema = new Schema<IUserModel>(schema);
+export const UserSchema = new Schema<IUserModel>(userDescriptor);
 
 export default model<IUserModel>('User', UserSchema) as Model<IUserModel>;

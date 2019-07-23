@@ -1,23 +1,26 @@
 import { Document, model, Model, Schema } from 'mongoose';
-import { ITypeMappingMongoose } from '../../utility';
+import { ModelTypeMapping, toStoreModelDescriptor } from '../../utility';
 
-const schema = {
+export const clientTokenDescriptor = {
+  access_token: String,
+  refresh_token: String,
+  expire_at: Number
+};
+export const clientTokenSMD = toStoreModelDescriptor(clientTokenDescriptor);
+
+export const tokenDescriptor = {
   tokenKey: String,
   refreshKey: String,
   refreshExpire: Number,
-  tokens: {
-    access_token: String,
-    refresh_token: String,
-    expire_at: Number
-  },
+  tokens: clientTokenDescriptor,
   user_password: String,
   user_id: String
 };
 
-export type IToken = ITypeMappingMongoose<typeof schema>;
+export type IToken = ModelTypeMapping<typeof tokenDescriptor>;
 
 export interface ITokenModel extends IToken, Document {}
 
-export const TokenSchema = new Schema<ITokenModel>(schema);
+export const TokenSchema = new Schema<ITokenModel>(tokenDescriptor);
 
 export default model<ITokenModel>('Token', TokenSchema) as Model<ITokenModel>;

@@ -1,5 +1,5 @@
 import 'array-polyfill.js';
-import { decodeByMap, md5, OnlineUserPack } from 'phusis';
+import { md5, OnlineUserPack } from 'phusis';
 import { resolve } from 'url';
 import { OnlineUser } from '../server/user';
 
