@@ -11,7 +11,7 @@ export interface SnackbarDefaultProps {
 export const snackbarDefaultProps: SnackbarDefaultProps = {
   open: false,
   message: 'no message',
-  position: 'top right',
+  position: 'top center',
   duration: 5000,
   variant: 'default'
 };

@@ -10,7 +10,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-// FUTURE: temporary solution instead of dynamic import material icons, it will slow down page load.
+// OPTIMIZE: temporary solution instead of dynamic import material icons, it will slow down page load.
 // see: https://github.com/zeit/next.js/issues/7676
 import Icons from '../themes/icons';
 

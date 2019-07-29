@@ -6,6 +6,8 @@ import ManageLayout from '../layout/ManageLayout';
 
 import config from '../config';
 
+// FUTURE: fetch the categories from server.
+// IDEA: could component have a async data loading decorator?
 const categories: CategoryItem[] = [
   {
     id: 'Develop',

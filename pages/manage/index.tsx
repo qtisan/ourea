@@ -53,7 +53,8 @@ interface ManageIndexProps extends WithStyles<typeof styles> {
 @observer
 class ManageIndex extends Component<ManageIndexProps> {
   refresh() {
-    this.props.store.refreshTokens();
+    this.props.store.setLoading();
+    setTimeout(() => this.props.store.setLoaded(), 3000);
   }
   async makReq() {
     await this.props.store.do({

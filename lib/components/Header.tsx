@@ -18,7 +18,7 @@ import clsx from 'clsx';
 import { inject, observer } from 'mobx-react';
 import Link from 'next/link';
 import React, { Component } from 'react';
-import { IStore } from '../stores';
+import { IStore, store as currentStore } from '../stores';
 
 const lightColor = 'rgba(255, 255, 255, 0.7)';
 
@@ -47,16 +47,17 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
   }
 });
 
+// IDEA: inject props not null will trigger an `property missing` error when initiate.
 @inject('store')
 @observer
-class Header extends Component<{ classes: any; onDrawerToggle: any; store: IStore }> {
+class Header extends Component<{ classes: any; onDrawerToggle: any; store?: IStore }> {
   signout = async () => {
-    const { store } = this.props;
+    const { store = currentStore } = this.props;
     await store.signout();
   };
 
   render() {
-    const { classes, onDrawerToggle, store } = this.props;
+    const { classes, onDrawerToggle, store = currentStore } = this.props;
 
     return (
       <>

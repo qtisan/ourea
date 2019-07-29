@@ -14,7 +14,7 @@ import * as db from './db';
 import { errswitch, makeError } from './errors';
 import { getUserInfoByPassword, OnlineUser, refreshTokens } from './user';
 import { PickMatching } from './utility';
-// TODO: need to be permissioned.
+// FUTURE: need to be permissioned.
 
 class ActionPortal {
   user: OnlineUser;

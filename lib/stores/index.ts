@@ -37,6 +37,8 @@ const Qs = types.model({
 // TODO: add page loading state, and ui component.
 const Store = types
   .model({
+    loading: types.number,
+    isSignin: types.boolean,
     currentUser: CurrentUserStore,
     tokens: TokenStore,
     results: types.array(Qs),
@@ -45,6 +47,9 @@ const Store = types
   .views((self) => ({
     getResult<A extends ActionType>(action: A) {
       return self.results.find((r) => r.action === action);
+    },
+    isLoading() {
+      return self.loading !== 100;
     }
   }))
   .actions((self) => ({
@@ -78,10 +83,34 @@ const Store = types
         }
       }
       return failed;
+    },
+    setIsSignin(isSignin: boolean) {
+      self.isSignin = isSignin;
+    },
+    setLoadingAmount(amount: number) {
+      self.loading = amount;
     }
   }))
   .extend((self) => ({
     actions: {
+      setLoaded() {
+        self.setLoadingAmount(100);
+      },
+      setLoading() {
+        let handler: NodeJS.Timeout;
+        if (self.loading === 100) {
+          self.setLoadingAmount(0);
+          handler = setInterval(() => {
+            if (self.loading === 100) {
+              clearInterval(handler);
+            } else {
+              self.setLoadingAmount(Math.min(self.loading + Math.random() * 10, 99));
+            }
+          }, 500);
+        } else {
+          self.setLoadingAmount(Math.min(self.loading + Math.random() * 5, 99));
+        }
+      },
       async refreshTokens(): Promise<QueryResponse<'passport/refresh-token'>> {
         const currentTokens = self.tokens.getTokens();
         const response = await makeRequest(config.getDoRequestUrl(), currentTokens.access_token, {
@@ -125,7 +154,6 @@ const Store = types
           access_token = self.tokens.access_token;
         }
         const response = await makeRequest(config.wrapRequestUrl(path), access_token, query);
-        // TODO: decrypt response encrypted string, have not encrypted now.
         self.putResult({
           action: response.query.action,
           ...response.result
@@ -153,14 +181,20 @@ const Store = types
           const { user, tokens } = result.data;
           self.tokens.updateTokens(tokens);
           self.currentUser.setUser(user);
-          // TODO: fix router error on console.
-          Router.replace('/manage');
+          self.setIsSignin(true);
+          self.snackbar.success('Signin success, redirecting...');
+          const { router } = Router;
+          let redirectPath = '/manage';
+          if (router && router.query && router.query.redirect) {
+            redirectPath = router.query.redirect as string;
+          }
+          Router.replace(redirectPath);
         }
       },
       async signout() {
-        // TODO: add signout logic.
-        // TODO: with query at current path.
-        Router.replace('/passport/signin');
+        // TODAY: add signout logic.
+        self.isSignin = false;
+        redirectToSignin();
       }
     }
   }));
@@ -174,6 +208,8 @@ export type IStoreSnapshotOut = SnapshotOut<typeof Store>;
 export const initializeStore = (isServer: boolean, initialState?: any) => {
   if (isServer || !store) {
     store = Store.create({
+      loading: 100,
+      isSignin: false,
       tokens: TokenStore.create(anoninfo.tokens),
       currentUser: CurrentUserStore.create(anoninfo.user),
       snackbar: initializeSnackbar()
@@ -183,6 +219,7 @@ export const initializeStore = (isServer: boolean, initialState?: any) => {
     applySnapshot(store, initialState);
   }
   if (typeof window !== 'undefined') {
+    // TODAY: add the whole page loading state, while the response not ready.
     fetchInitialState().then((snapshot) => {
       applySnapshot(store, snapshot);
     });
@@ -200,7 +237,7 @@ export async function makeRequest<A extends ActionType>(
   });
   const response = await fetch(url, {
     method: 'POST',
-    body: JSON.stringify({ q }),
+    body: JSON.stringify({ q, ...(config.dev ? { debug: { accessToken, query } } : {}) }),
     headers: {
       credential,
       'Content-Type': 'application/json'
@@ -225,14 +262,19 @@ async function fetchInitialState(isServer: boolean = typeof window === 'undefine
   });
   const { status, exception, data } = currentUserResponse.result;
   let currentUserStore;
+  let isSignin = false;
   if (status === 'success' && data) {
     currentUserStore = CurrentUserStore.create(data.user as OnlineUser);
+    isSignin = data.expired && store.isSignin;
   } else {
     currentUserStore = CurrentUserStore.create(anoninfo.user);
     console.warn('current user error', exception);
   }
+  // TODO: if user is signin & at signin page, redirect inner.
   return getSnapshot(
     Store.create({
+      loading: 100,
+      isSignin,
       tokens: tokenStore,
       currentUser: currentUserStore,
       snackbar: initializeSnackbar()
@@ -241,6 +283,10 @@ async function fetchInitialState(isServer: boolean = typeof window === 'undefine
 }
 
 function redirectToSignin() {
-  // TODO: add current path in query for signin redirect.
-  location.href = config.getSigninUrl();
+  const { router } = Router;
+  let signinPath = '/passport/signin';
+  if (router && router.pathname) {
+    signinPath += `?redirect=${router.pathname}`;
+  }
+  Router.replace(signinPath);
 }

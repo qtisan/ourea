@@ -20,7 +20,7 @@ class SnackbarPlugin extends React.Component<{
         message={store.snackbar.message}
         variant={store.snackbar.variant as SnackbarVariant}
         onClose={() => store.snackbar.close()}
-        TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="left" />}
+        TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="down" />}
       />
     );
   }

@@ -95,7 +95,34 @@ let theme = createMuiTheme({
   },
   shape: {
     borderRadius: 8
-  }
+  },
+  shadows: [
+    'none',
+    '0px 6px 6px -3px rgba(0,0,0,0.04), 0px 10px 14px 1px rgba(0,0,0,0.04), 0px 4px 18px 3px rgba(0,0,0,0.04)',
+    '0px 6px 6px -3px rgba(0,0,0,0.08), 0px 10px 14px 1px rgba(0,0,0,0.08), 0px 4px 18px 3px rgba(0,0,0,0.08)',
+    '0px 6px 6px -3px rgba(0,0,0,0.12), 0px 10px 14px 1px rgba(0,0,0,0.12), 0px 4px 18px 3px rgba(0,0,0,0.12)',
+    '0px 6px 6px -3px rgba(0,0,0,0.16), 0px 10px 14px 1px rgba(0,0,0,0.16), 0px 4px 18px 3px rgba(0,0,0,0.16)',
+    '0px 6px 6px -3px rgba(0,0,0,0.20), 0px 10px 14px 1px rgba(0,0,0,0.20), 0px 4px 18px 3px rgba(0,0,0,0.20)',
+    '0px 6px 6px -3px rgba(0,0,0,0.24), 0px 10px 14px 1px rgba(0,0,0,0.24), 0px 4px 18px 3px rgba(0,0,0,0.24)',
+    '0px 6px 6px -3px rgba(0,0,0,0.28), 0px 10px 14px 1px rgba(0,0,0,0.28), 0px 4px 18px 3px rgba(0,0,0,0.28)',
+    '0px 6px 6px -3px rgba(0,0,0,0.32), 0px 10px 14px 1px rgba(0,0,0,0.32), 0px 4px 18px 3px rgba(0,0,0,0.32)',
+    '0px 6px 6px -3px rgba(0,0,0,0.36), 0px 10px 14px 1px rgba(0,0,0,0.36), 0px 4px 18px 3px rgba(0,0,0,0.36)',
+    '0px 6px 6px -3px rgba(0,0,0,0.40), 0px 10px 14px 1px rgba(0,0,0,0.40), 0px 4px 18px 3px rgba(0,0,0,0.40)',
+    '0px 6px 6px -3px rgba(0,0,0,0.44), 0px 10px 14px 1px rgba(0,0,0,0.44), 0px 4px 18px 3px rgba(0,0,0,0.44)',
+    '0px 6px 6px -3px rgba(0,0,0,0.48), 0px 10px 14px 1px rgba(0,0,0,0.48), 0px 4px 18px 3px rgba(0,0,0,0.48)',
+    '0px 6px 6px -3px rgba(0,0,0,0.52), 0px 10px 14px 1px rgba(0,0,0,0.52), 0px 4px 18px 3px rgba(0,0,0,0.52)',
+    '0px 6px 6px -3px rgba(0,0,0,0.56), 0px 10px 14px 1px rgba(0,0,0,0.56), 0px 4px 18px 3px rgba(0,0,0,0.56)',
+    '0px 6px 6px -3px rgba(0,0,0,0.60), 0px 10px 14px 1px rgba(0,0,0,0.60), 0px 4px 18px 3px rgba(0,0,0,0.60)',
+    '0px 6px 6px -3px rgba(0,0,0,0.64), 0px 10px 14px 1px rgba(0,0,0,0.64), 0px 4px 18px 3px rgba(0,0,0,0.64)',
+    '0px 6px 6px -3px rgba(0,0,0,0.68), 0px 10px 14px 1px rgba(0,0,0,0.68), 0px 4px 18px 3px rgba(0,0,0,0.68)',
+    '0px 6px 6px -3px rgba(0,0,0,0.72), 0px 10px 14px 1px rgba(0,0,0,0.72), 0px 4px 18px 3px rgba(0,0,0,0.72)',
+    '0px 6px 6px -3px rgba(0,0,0,0.76), 0px 10px 14px 1px rgba(0,0,0,0.76), 0px 4px 18px 3px rgba(0,0,0,0.76)',
+    '0px 6px 6px -3px rgba(0,0,0,0.80), 0px 10px 14px 1px rgba(0,0,0,0.80), 0px 4px 18px 3px rgba(0,0,0,0.80)',
+    '0px 6px 6px -3px rgba(0,0,0,0.84), 0px 10px 14px 1px rgba(0,0,0,0.84), 0px 4px 18px 3px rgba(0,0,0,0.84)',
+    '0px 6px 6px -3px rgba(0,0,0,0.88), 0px 10px 14px 1px rgba(0,0,0,0.88), 0px 4px 18px 3px rgba(0,0,0,0.88)',
+    '0px 6px 6px -3px rgba(0,0,0,0.92), 0px 10px 14px 1px rgba(0,0,0,0.92), 0px 4px 18px 3px rgba(0,0,0,0.92)',
+    '0px 6px 6px -3px rgba(0,0,0,0.96), 0px 10px 14px 1px rgba(0,0,0,0.96), 0px 4px 18px 3px rgba(0,0,0,0.96)'
+  ]
 });
 
 (function reduceShadowDepth(scale: number): void {
@@ -175,6 +202,18 @@ theme = {
         '&:active': {
           boxShadow: 'none'
         }
+      }
+    },
+    MuiSnackbar: {
+      root: {
+        boxShadow: theme.shadows[0]
+      }
+    },
+    MuiSnackbarContent: {
+      root: {
+        borderRadius: 0,
+
+        boxShadow: theme.shadows[4]
       }
     },
     MuiAppBar: {

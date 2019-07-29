@@ -83,6 +83,7 @@ class Signin extends Component<ISigninProps> {
 
   signin = async () => {
     // TODO: disable button while signin.
+    // NOTE: ref to the loading state
     const { getFieldValues, validateAll, getFieldErrors, setField } = this.props.validator;
     const { store } = this.props;
     const anon = store.currentUser.isAnonymous();
@@ -208,7 +209,13 @@ class Signin extends Component<ISigninProps> {
               // TODO: add access key with <Enter>.
               */}
               <CenteredGrid>
-                <Fab size="large" color="primary" className={classes.submit} onClick={this.signin}>
+                <Fab
+                  size="large"
+                  color="primary"
+                  disabled={store.isLoading()}
+                  className={classes.submit}
+                  onClick={this.signin}
+                >
                   <Directions />
                 </Fab>
               </CenteredGrid>
@@ -219,5 +226,5 @@ class Signin extends Component<ISigninProps> {
     );
   }
 }
-// TODO: lift the withRouter to a decorator.
+
 export default withStyles(styles)(Signin);

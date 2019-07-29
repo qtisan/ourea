@@ -1,6 +1,6 @@
 {
   "name": "ourea",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "nextjs with material-ui & typescript demo",
   "main": "index.js",
   "scripts": {

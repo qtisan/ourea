@@ -52,11 +52,14 @@ class ServerRoutes {
           data,
           exception: status === 'fail' && exception ? exception.code : undefined
         },
-        query: query || ({ action: 'system/noop', payload: req.body.q } as ClientQuery<A>),
+        query: query || ({ action: 'system/noop', payload: { q: req.body.q } } as ClientQuery<A>),
         user: user || anoninfo.user
       };
       const code = status === 'success' ? 200 : exception ? exception.code : 500;
-      res.status(code).json({ r: encodeByMap(JSON.stringify(asset), { ...config.crypto }) });
+      res.status(code).json({
+        r: encodeByMap(JSON.stringify(asset), { ...config.crypto }),
+        ...(config.dev ? { debug: asset } : {})
+      });
       return res;
     };
     await next();
@@ -81,7 +84,8 @@ class ServerRoutes {
       if (
         userinfo.expired &&
         query.action !== 'passport/refresh-token' &&
-        query.action !== 'passport/current-user'
+        query.action !== 'passport/current-user' &&
+        query.action !== 'passport/signin'
       ) {
         failed(res, userinfo.user, query as ClientQuery<any>)(431);
         return;

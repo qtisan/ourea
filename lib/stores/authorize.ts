@@ -1,8 +1,8 @@
 import { types } from 'mobx-state-tree';
 import { caught, decrypt, encrypt, Tokens } from 'phusis';
 import { OnlineUser } from 'server/user';
-import { clientTokenSMD } from '../../server/db/model/token';
-import { userSMD } from '../../server/db/model/user';
+import { clientTokenSMD } from '../../server/db/descriptor/token';
+import { userSMD } from '../../server/db/descriptor/user';
 import config from '../config';
 
 export const anoninfo = config.getAnonymousUserInfo();

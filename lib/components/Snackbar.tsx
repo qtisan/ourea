@@ -43,7 +43,13 @@ const styles: Styles<Theme, {}> = (theme: Theme) => ({
   }
 });
 
-export type SnackbarPosition = 'top right' | 'top left' | 'bottom right' | 'bottom left';
+export type SnackbarPosition =
+  | 'top right'
+  | 'top left'
+  | 'bottom right'
+  | 'bottom left'
+  | 'top center'
+  | 'bottom center';
 export type SnackbarVariant = 'success' | 'warning' | 'error' | 'default' | 'info';
 export interface SnackbarProps {
   open: boolean;
@@ -78,7 +84,7 @@ export default withStyles(styles)(
         <Snackbar
           anchorOrigin={{
             vertical: ans[0] as ('top' | 'bottom'),
-            horizontal: ans[1] as ('left' | 'right')
+            horizontal: ans[1] as ('left' | 'right' | 'center')
           }}
           open={open}
           autoHideDuration={duration}
